@@ -12,8 +12,7 @@ def comment_extract_file(path):
 	with open(path) as f:
 		data = json.load(f)
 
-	json_obj = comment_extract(data)
-	comments = comment_extract(json_obj)
+	comments = comment_extract(data)
 
 	
 	return comments
