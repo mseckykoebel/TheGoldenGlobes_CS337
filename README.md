@@ -4,6 +4,6 @@ CS 337 NLP project
 
 ## Running the application
 ```
-make init        //Install required packages
-python3 project  //Run project
+make init        		 //Install required packages
+python3 project ./yourdata.json  //Run project with your data
 ```
