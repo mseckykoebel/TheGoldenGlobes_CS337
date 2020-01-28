@@ -1,7 +1,5 @@
 import json
 
-
-
 def comment_extract_file(path):
 	""" 
 	Helper function to extract comments from JSON tweets.
@@ -13,7 +11,6 @@ def comment_extract_file(path):
 		data = json.load(f)
 
 	comments = comment_extract(data)
-
 	
 	return comments
 
