@@ -7,8 +7,8 @@ def comment_extract_file(path):
 	Output	  : List of comments strings
 	"""
 
-	with open(path) as f:
-		data = json.load(f)
+	with open(path, "r") as read_file:
+		data = json.load(read_file)
 
 	comments = comment_extract(data)
 	
