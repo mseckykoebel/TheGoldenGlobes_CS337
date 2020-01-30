@@ -1,2 +1,8 @@
-__pycache__
+# Windows Cache
+Thumbs.db
+
+# Project Files:
 *.json
+__pycache__
+*.tsv
+*.gz
