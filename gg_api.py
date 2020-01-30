@@ -1,4 +1,35 @@
+# required
 import nltk
+import numpy
+#import spacy
+
+# not required
+import json
+# to see how long the program has been running
+import time
+
+# prefer the use of GPU for a neural network
+#spacy.prefer_gpu()
+#nlp = spacy.load("en_core_web_sm")
+
+# get the name of the project members
+class TeamMember:
+
+    def __init__(self, name, netID):
+        self.name = name
+        self.netID = netID
+
+member1 = TeamMember("Mason Secky-Koebel", "msf9197")
+# TODO
+member2 = TeamMember("", "")
+member3 = TeamMember("", "")
+member4 = TeamMember("", "")
+
+def getTeamMembers():
+    print(member1, member2, member3, member4)
+
+getTeamMembers()
+
 
 """Version 0.35"""
 
@@ -114,9 +145,12 @@ def main():
     and then run gg_api.main(). This is the second thing the TA will
     run when grading. Do NOT change the name of this function or
     what it returns."""
-    # Your code here
     return
 
-
 if __name__ == "__main__":
+    # elapsedSeconds = seconds since 0
+    elapsedSeconds = time.time()
+    # run the function
     main()
+    # print the amount of time the program took
+    print(time.time() - elapsedSeconds)
