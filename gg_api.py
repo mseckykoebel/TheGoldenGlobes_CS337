@@ -19,6 +19,9 @@ class TeamMember:
         self.name = name
         self.netID = netID
 
+    def _get_name(self):
+        print(self.name)
+
 member1 = TeamMember("Mason Secky-Koebel", "msf9197")
 # TODO
 member2 = TeamMember("", "")
@@ -26,9 +29,8 @@ member3 = TeamMember("", "")
 member4 = TeamMember("", "")
 
 def getTeamMembers():
-    print(member1, member2, member3, member4)
-
-getTeamMembers()
+    print('Team members: ')
+    print(member1._get_name(), member2._get_name(), member3._get_name(), member4._get_name())
 
 
 """Version 0.35"""
