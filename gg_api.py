@@ -8,6 +8,9 @@ import json
 # to see how long the program has been running
 import time
 
+# other files
+import winnerFromNominees
+
 # prefer the use of GPU for a neural network
 #spacy.prefer_gpu()
 #nlp = spacy.load("en_core_web_sm")

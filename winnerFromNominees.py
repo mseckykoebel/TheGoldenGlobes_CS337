@@ -1,20 +1,27 @@
 # required
 import nltk
-import numpy
-import spacy
 
 # not required
 import json
 import sys
 import random
 import time
+import csv
 
-def main():
+# helper file
+import helpers
+from getTweetText import getTweets 
 
-    # get the tweets
-    with open(tweet_file) as f:
-        tweets = json.load(f)
+def winnerFromNominees():
 
+    # tweetText
+    # tweets
+    tweetFile = sys.argv[1]
+    numberOfTweets = sys.argv[2]
 
-if __name__ == '__main__':
-    main()
+    tweetText = getTweets(tweetFile, numberOfTweets)
+
+    # for testing
+    print(tweetText)
+
+    return

@@ -22,11 +22,9 @@ def comment_extract(json_obj):
 	Arguments : JSON Obj of tweets
 	Output	  : List of comments strings
 	"""
-
     comment_list = []
-
-    for comment in json_obj:
-        text = comment if type(comment) is str else comment["text"]
-        comment_list.append(text)
+    #for comment in json_obj:
+    #    text = comment if type(comment) is str else comment["text"]
+    #    comment_list.append(text)
 
     return comment_list
