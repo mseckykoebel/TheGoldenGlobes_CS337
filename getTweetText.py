@@ -12,7 +12,8 @@ def getTweets():
     if len(sys.argv) > 3:
         print(
             """Wrong number of arguments. Please include only the .json
-            data file, or the data file and the total number of tweets 
+            data file, or the data file, and the total number of tweets
+            you want to test with 
             (recommended to make the computation much faster)!"""
         )
         sys.exit(2)
@@ -21,8 +22,10 @@ def getTweets():
     with open(sys.argv[1]) as read_file:
         tweets = json.load(read_file)
 
+    # get the second argument
     numberOfTweets = int(sys.argv[2])
 
+    # take a random subset of the number of tweets entered
     tweets = random.sample(tweets, numberOfTweets)
 
     # take only text
@@ -30,8 +33,4 @@ def getTweets():
     for i in tweets:
         tweetText.append(i['text'])
 
-    # see it this is 10,000 random tweets
-    print(tweetText)
-
-
-getTweets()
+    return tweetText
