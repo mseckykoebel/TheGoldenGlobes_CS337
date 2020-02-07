@@ -1,14 +1,15 @@
 import json
 import sys
 import random
+from helpers import extractTextFromFile
 
 # function that can take in json tweet file, and optional
 # second argument for number of tweets wanted
 
-def getTweets(tweetFile, numberOfTweets):
+def getTweets():
 
     # if more arguments are entered, there as an error
-    if len(sys.argv) > 2:
+    if len(sys.argv) > 3:
         print(
             """Wrong number of arguments. Please include only the .json
             data file, or the data file and the total number of tweets 
@@ -16,27 +17,21 @@ def getTweets(tweetFile, numberOfTweets):
         )
         sys.exit(2)
 
-    # get the tweets
-    with open(tweetFile) as file:
-        tweets = json.load(file)
+    # open the tweet file
+    with open(sys.argv[1]) as read_file:
+        tweets = json.load(read_file)
 
+    numberOfTweets = int(sys.argv[2])
 
-    # make the number of tweets smaller if the argument was there
-    if (numberOfTweets):
-        tweets = random.sample(tweets, 10000)
+    tweets = random.sample(tweets, numberOfTweets)
 
-    # get only the comments 
-    comment_list = []
-
-    # extract just the text
-    for comment in tweets:
-        text = comment if type(comment) is str else comment["text"]
-        comment_list.append(text)
-
-    # text only is appended and placed in an array 
+    # take only text
     tweetText = []
     for i in tweets:
         tweetText.append(i['text'])
 
-    # return the text
-    return tweetText
+    # see it this is 10,000 random tweets
+    print(tweetText)
+
+
+getTweets()
