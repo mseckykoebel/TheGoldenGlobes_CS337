@@ -6,6 +6,8 @@ Thumbs.db
 __pycache__
 *.tsv
 *.gz
+*.swp
+*.pyc
 
 # Distribution / packaging
 .Python
