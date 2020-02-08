@@ -25,7 +25,7 @@ class TeamMember:
         return self.name
 
 member1 = TeamMember("Mason Secky-Koebel", "msf9197")
-member2 = TeamMember("", "")
+member2 = TeamMember("Tyler Rodgers", "tcr7461")
 member3 = TeamMember("", "")
 member4 = TeamMember("", "")
 
