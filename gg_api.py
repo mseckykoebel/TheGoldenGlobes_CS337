@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # required and not required
+from helpers import getTeamMembers
+from helpers import getIMDbData
+from getTweetText import getTweets
 import nltk
 import numpy
 import json
@@ -21,8 +24,6 @@ spacy.prefer_gpu()
 nlp = spacy.load("en_core_web_sm")
 
 # helper functions
-from helpers import getIMDbData
-from helpers import getTeamMembers
 
 
 """Version 0.35"""
@@ -86,13 +87,15 @@ OFFICIAL_AWARDS_1819 = [
 ]
 OFFICIAL_AWARDS_2020 = None
 
-### Defining program constants
+# Defining program constants
 AWARD_TOKEN_SET = set()
-# possible keywords for the ceremoney itself
-AWARD_KEYWORDS = ["#goldenglobes","goldenglobes2013","goldenglobes2015","golden globes","golden","globes","gg2013","gg2015","gg2020"]
+# possible keywords for the ceremony itself
+AWARD_KEYWORDS = ["#goldenglobes", "goldenglobes2013", "goldenglobes2015",
+                  "golden globes", "golden", "globes", "gg2013", "gg2015", "gg2020"]
 
 # all of the names in the IMDb database are going to go here
 nameDictionary = {}
+
 
 def pre_ceremony():
     """This function loads/fetches/processes any data your program
@@ -104,8 +107,8 @@ def pre_ceremony():
     IMDb database, their birth and death year, primary profession, and"""
 
     global nameDictionary
-    
-    print("Beginning the pre-ceremoney process...")
+
+    print("Beginning the pre-ceremony process...")
     # TIMER START
     timer = time.time()
 
@@ -183,7 +186,39 @@ def get_awards(year):
     """Awards is a list of strings. Do NOT change the name
     of this function or what it returns."""
     # Your code here
-    return awards
+    # 1. list of words related to awards/helper words (maybe too many words? taken from list of awards above)
+    award_word_dict = ['actor', 'actress', 'animated', 'award', 'best',  'cecil', 'comedy', 'demille', 'director', 'drama', 'feature', 'film', 'foreign',
+                   'language', 'made', 'mini', 'series', 'motion', 'musical',  'original', 'performance', 'picture', 'role', 'score', 'screenplay', 'series', 'song', 'supporting', 'television']
+    basic_word_dict = ['a', 'an', 'for', 'in', 'by', 'or', '-', ':', ',']
+    # 2. get tweets and tokenize them
+    f = 'gg'+str(year)+'.json'
+    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f)]
+    # 3. look for award names in tweets
+    awards = []  # return array
+    award_tweets = []
+    for tweet in tweets:
+        if len(set(award_word_dict).intersection(tweet)) > 3:
+            award_tweets.append(tweet)
+    # 4. look for award words in award tweets
+    for tweet in award_tweets:
+        if 'best' not in tweet and 'cecil' not in tweet:
+            continue
+        award_name_builder = []
+        begin = tweet.index(
+            'best') if 'best' in tweet else tweet.index('cecil')
+        is_in_award_dict = True
+        for i in range(begin, len(tweet)):
+            if tweet[i] not in award_word_dict and tweet[i] not in basic_word_dict:
+                is_in_award_dict = False
+            if tweet[i] in award_word_dict or tweet[i] in basic_word_dict and is_in_award_dict:
+                award_name_builder.append(tweet[i])
+        while award_name_builder[-1] in basic_word_dict:
+            award_name_builder.pop()
+        award_string = ' '.join(award_name_builder)
+        if award_string not in awards and len(award_name_builder) > 3:
+            awards.append(award_string)
+
+    return awards 
 
 
 def get_nominees(year):
@@ -218,10 +253,10 @@ def main():
     what it returns."""
     return
 
+
 # run these before main
 getTeamMembers()
 pre_ceremony()
-
 if __name__ == "__main__":
     # elapsedSeconds = seconds since 0
     elapsedSeconds = time.time()
