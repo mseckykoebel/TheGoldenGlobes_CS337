@@ -237,6 +237,17 @@ def main():
     what it returns."""
     return
 
+def runAllFunctions():
+    return
+
+### BONUS FUNCTIONS ###
+
+def best_dressed(year):
+    return
+
+def worst_dressed(year):
+    return
+
 
 # run these before main
 getTeamMembers()
@@ -247,5 +258,7 @@ if __name__ == "__main__":
     elapsedSeconds = time.time()
     # run the function
     main()
+    # run the helper functions
+    runAllFunctions()
     # print the amount of time the program took
     print(time.time() - elapsedSeconds)
