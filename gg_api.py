@@ -9,14 +9,18 @@ import sys
 import time
 import gzip
 import ssl
+
 # opens IMDb url
 import urllib.request
 from collections import Counter
+
 # compare hashable sentences
 from difflib import SequenceMatcher
+
 # spacy and the spacy tokenizer
 import spacy
 from spacy.tokenizer import Tokenizer
+
 spacy.prefer_gpu()
 nlp = spacy.load("en_core_web_sm")
 
@@ -89,10 +93,21 @@ OFFICIAL_AWARDS_2020 = None
 ### Defining program constants
 AWARD_TOKEN_SET = set()
 # possible keywords for the ceremoney itself
-AWARD_KEYWORDS = ["#goldenglobes","goldenglobes2013","goldenglobes2015","golden globes","golden","globes","gg2013","gg2015","gg2020"]
+AWARD_KEYWORDS = [
+    "#goldenglobes",
+    "goldenglobes2013",
+    "goldenglobes2015",
+    "golden globes",
+    "golden",
+    "globes",
+    "gg2013",
+    "gg2015",
+    "gg2020",
+]
 
 # all of the names in the IMDb database are going to go here
 nameDictionary = {}
+
 
 def pre_ceremony():
     """This function loads/fetches/processes any data your program
@@ -104,61 +119,63 @@ def pre_ceremony():
     IMDb database, their birth and death year, primary profession, and"""
 
     global nameDictionary
-    
+
     print("Beginning the pre-ceremoney process...")
     # TIMER START
     timer = time.time()
 
     f = getIMDbData()
 
-    print("Processing data to nameDictionary (data.tsv cam be opened with excel")
+    print("Processing data to nameDictionary (data.tsv can be opened with excel)")
     print("\n")
 
-    f = gzip.open('nameBasics.tsv.gz')
+    f = gzip.open("nameBasics.tsv.gz")
     # read the file as strings
     dataContent = str(f.read())
     # split the content where there is a new line
-    dataSeparators = dataContent.split('\\n')
+    dataSeparators = dataContent.split("\\n")
     # split the lines with tab
+    # all of the data will be in the array
+    allData = []
     for line in dataSeparators:
-        # all of the data will be in the array
-        allData = []
-        allData.append(line.split('\\t'))
-    # only take names from 2012 - 2020 (assuming this is not tested earlier)
-    for year in range(2012, 2020):
+        allData.append(line.split("\\t"))
+    # define the dictionary of names
+    global nameDictionary
+    # only take names from a certian time (assuming this is not tested earlier)
+    for year in range(2010, 2020):
         nameDictionary[str(year)] = []
 
-    # ignore the first and last line
+    # iterate through all lines
     for name in allData[1:len(allData)-1]:
-        # get the name, birth, and death fields
-        actualActorName = name[1]
-        actorBirthday = name[2]
-        actorDeathDay = name[3]
+        # get the name, birth date, and death date
+        name_name = name[1]
+        name_birth = name[2]
+        name_death = name[3]
 
-        # if data in the table is missing, pass over it and move onto the next name
-        if actorBirthday == '\\N':
-            continue
-        if actualActorName == '\\N':
+        # if we're missing data, continue
+        if name_birth == '\\\\N':
             continue
 
         # check if they're still alive
-        if actorDeathDay == '\\N':
-            # object of all years the actor has been active, in order
-            yearsActive = range(int(actorBirthday), 2020)
+        if name_death == '\\\\N':
+            years_active = range(int(name_birth), 2020)
         else:
-            yearsActive = range(int(actorBirthday), int(actorDeathDay) + 1)
+            years_active = range(int(name_birth), int(name_death) + 1)
+
+        # check that they weren't born before they died
+        if years_active == range(1, 1):
+            continue
 
         # check edge cases
-        if yearsActive[0] < 2010 and yearsActive[-1] < 2010:
+        if years_active[0] < 2010 and years_active[-1] < 2010:
             continue
-        if yearsActive[0] > 2020:
+        if years_active[-1] > 2019:
             continue
-        if yearsActive[0] < 2010:
-            yearsActive = range(2010, yearsActive[-1]+1)
-
-        # add names to the data file, and not the other information
-        for year in yearsActive:
-            nameDictionary[str(year)].append(actualActorName)
+        if years_active[0] < 2010:
+            years_active = range(2010, years_active[-1]+1)
+        # add the years active to the array
+        for year in years_active:
+            nameDictionary[str(year)].append(name_name)
 
     print("Pre-ceremony processing complete.")
 
@@ -168,6 +185,8 @@ def pre_ceremony():
     print("Total runtime: %s seconds" % str(time.time() - timer))
 
     print("\n")
+
+    # print(nameDictionary)
 
     return
 
@@ -217,6 +236,7 @@ def main():
     run when grading. Do NOT change the name of this function or
     what it returns."""
     return
+
 
 # run these before main
 getTeamMembers()
