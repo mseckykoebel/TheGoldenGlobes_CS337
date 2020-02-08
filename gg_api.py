@@ -88,7 +88,8 @@ OFFICIAL_AWARDS_1819 = [
     "best performance by an actor in a supporting role in a series, limited series or motion picture made for television",
     "cecil b. demille award",
 ]
-OFFICIAL_AWARDS_2020 = None
+# choosing between the years
+OFFICIAL_AWARDS_FOR_FUNCTION
 
 ### Defining program constants
 AWARD_TOKEN_SET = set()
@@ -104,6 +105,8 @@ AWARD_KEYWORDS = [
     "gg2015",
     "gg2020",
 ]
+# tweet dictionary
+TWEETS = {}
 
 # all of the names in the IMDb database are going to go here
 nameDictionary = {}
@@ -146,18 +149,18 @@ def pre_ceremony():
         nameDictionary[str(year)] = []
 
     # iterate through all lines
-    for name in allData[1:len(allData)-1]:
+    for name in allData[1 : len(allData) - 1]:
         # get the name, birth date, and death date
         name_name = name[1]
         name_birth = name[2]
         name_death = name[3]
 
         # if we're missing data, continue
-        if name_birth == '\\\\N':
+        if name_birth == "\\\\N":
             continue
 
         # check if they're still alive
-        if name_death == '\\\\N':
+        if name_death == "\\\\N":
             years_active = range(int(name_birth), 2020)
         else:
             years_active = range(int(name_birth), int(name_death) + 1)
@@ -172,7 +175,7 @@ def pre_ceremony():
         if years_active[-1] > 2019:
             continue
         if years_active[0] < 2010:
-            years_active = range(2010, years_active[-1]+1)
+            years_active = range(2010, years_active[-1] + 1)
         # add the years active to the array
         for year in years_active:
             nameDictionary[str(year)].append(name_name)
@@ -237,13 +240,61 @@ def main():
     what it returns."""
     return
 
+
 def runAllFunctions():
     return
 
+
 ### BONUS FUNCTIONS ###
 
+
 def best_dressed(year):
-    return
+    # define an array that will hold the right data
+    global OFFICIAL_AWARDS_FOR_FUNCTION
+    # get the 2013, 2015, 2018, or 2019 data
+    if (year == "2013") or (year == "2015"):
+        OFFICIAL_AWARDS_FOR_FUNCTION = OFFICIAL_AWARDS_1315
+        print("Using OFFICIAL_AWARDS_1315 \n")
+    elif (year == "2018") or (year == "2019"):
+        OFFICIAL_AWARDS_FOR_FUNCTION = OFFICIAL_AWARDS_1819
+        print("Using OFFICIAL_AWARDS_1819 \n")
+    else:
+        ValueError("Please use data from 2013, 2015, 2018, or 2019!")
+    # tweets array
+    global TWEETS
+    bestDressedKeywords = [
+        "alluring",
+        "appealing",
+        "amazing",
+        "beautiful",
+        "dazzling",
+        "delicate",
+        "elegant",
+        "exquisite",
+        "gorgeous",
+        "stunning",
+        "wonderful",
+        "best dressed",
+        "best dress",
+        "best looking",
+        "magnificent",
+        "lovely dress",
+        "dapper",
+        "graceful",
+        "fantastic suit",
+        "handsome outfit",
+        "great outfit",
+        "best dressed",
+    ]
+
+    result = []
+    # iterate through all of the tweets and if one of the key words matches, add it to the matching tweets array
+    for tweet in TWEETS
+        matchingTweets = []
+        matchingTweets.append(tweet)
+
+    # listOfBestDressed = .....
+
 
 def worst_dressed(year):
     return
