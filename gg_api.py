@@ -93,11 +93,6 @@ OFFICIAL_AWARDS_2020 = None
 
 # Defining program constants
 AWARD_TOKEN_SET = set()
-<<<<<<< HEAD
-# possible keywords for the ceremony itself
-AWARD_KEYWORDS = ["#goldenglobes", "goldenglobes2013", "goldenglobes2015",
-                  "golden globes", "golden", "globes", "gg2013", "gg2015", "gg2020"]
-=======
 # possible keywords for the ceremoney itself
 AWARD_KEYWORDS = [
     "#goldenglobes",
@@ -110,7 +105,6 @@ AWARD_KEYWORDS = [
     "gg2015",
     "gg2020",
 ]
->>>>>>> 17544f5c05a9c0c7c6e1da45b5f9148fe5ef8dc1
 
 # all of the names in the IMDb database are going to go here
 nameDictionary = {}
@@ -127,11 +121,7 @@ def pre_ceremony():
 
     global nameDictionary
 
-<<<<<<< HEAD
     print("Beginning the pre-ceremony process...")
-=======
-    print("Beginning the pre-ceremoney process...")
->>>>>>> 17544f5c05a9c0c7c6e1da45b5f9148fe5ef8dc1
     # TIMER START
     timer = time.time()
 
@@ -280,8 +270,6 @@ def main():
     what it returns."""
     return
 
-<<<<<<< HEAD
-=======
 def runAllFunctions():
     return
 
@@ -293,7 +281,6 @@ def best_dressed(year):
 def worst_dressed(year):
     return
 
->>>>>>> 17544f5c05a9c0c7c6e1da45b5f9148fe5ef8dc1
 
 # run these before main
 getTeamMembers()
