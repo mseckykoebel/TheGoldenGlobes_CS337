@@ -11,14 +11,19 @@ def getTweets(tweetFile, numOfTweets):
         tweets = json.load(read_file)
 
     # get the second argument
-    numberOfTweets = int(numOfTweets)
+    if numOfTweets == ' ':
+        tweetText = []
+        for i in tweets:
+            tweetText.append(i["text"])
+    else:
+        numberOfTweets = int(numOfTweets)
 
-    # take a random subset of the number of tweets entered
-    tweets = random.sample(tweets, numberOfTweets)
+        # take a random subset of the number of tweets entered
+        tweets = random.sample(tweets, numberOfTweets)
 
-    # take only text
-    tweetText = []
-    for i in tweets:
-        tweetText.append(i["text"])
+        # take only text
+        tweetText = []
+        for i in tweets:
+            tweetText.append(i["text"])
 
     return tweetText
