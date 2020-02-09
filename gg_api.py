@@ -46,6 +46,13 @@ OFFICIAL_AWARDS_1315 = [
     "best performance by an actor in a motion picture - comedy or musical",
     "best animated feature film",
     "best foreign language film",
+    "best supporting actress",
+    "best actress in a motion picture , comedy or musical",
+    "best actor in a motion picture , comedy or musical",
+    "best actress in a TV series",
+    "best actor in a TV series",
+    "best actress in a drama series",
+    "best film in the comedy",
     "best performance by an actress in a supporting role in a motion picture",
     "best performance by an actor in a supporting role in a motion picture",
     "best director - motion picture",
@@ -418,13 +425,11 @@ def get_winner(year):
                 c = tweet[i - 1] + ' ' + tweet[i]
                 if c in actor_names:
                     candidate = c
-                    break
 
             for a in OFFICIAL_AWARDS_1315:
-                if award in full_tweet:
+                if a in full_tweet:
                     award = a
                     break
-
 
             if len( candidate ) > 0 and len( award ) > 0:
                 winners[ award ] = candidate
