@@ -117,7 +117,9 @@ nameDictionary = {}
 # all the stopwords can be added here
 global function_stopwords
 function_stopwords = stopwords.words('english')
-function_stopwords.extend(['golden', 'globes', 'hosted', 'http', 'co', 'GoldenGlobes', 'backstage', 'presenters', 'best', 'actress', 'actor', 'tv', 'movie', 'miniseries', 'presenting', 'motion', 'picture', 'supporting', 'goldenglobe', 'st', 'award', 'cecil', 'b', 'demille', 'looked', 'whats', 'happening', 'original', 'score', 'screenplay', 'RT', 'hosting', 'goldenglobes'])
+function_stopwords.extend(['golden', 'globes', 'hosted', 'http', 'co', 'GoldenGlobes', 'backstage', 'presenters', 'best', 'actress', 'actor', 'tv', 'movie', 'miniseries', 'presenting', 'motion',
+                           'picture', 'supporting', 'goldenglobe', 'st', 'award', 'cecil', 'b', 'demille', 'looked', 'whats', 'happening', 'original', 'score', 'screenplay', 'RT', 'hosting', 'goldenglobes'])
+
 
 def pre_ceremony():
     """This function loads/fetches/processes any data your program
@@ -134,7 +136,7 @@ def pre_ceremony():
     # TIMER START
     timer = time.time()
 
-    f = getIMDbData()
+   # f = getIMDbData()
 
     print("Processing data to nameDictionary (data.tsv can be opened with excel)")
     print("\n")
@@ -204,18 +206,18 @@ def pre_ceremony():
 def get_hosts(year):
     """Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns."""
-    
+
     # ------ get json file
     f = 'gg'+str(year)+'.json'
-    
+
     # ------ get all tweets in a list
     tweets = getTweets(f, ' ')
-    
+
     # ------ use re.findall to get a list of tweets that may have host names
     match_list = []
     for tweet in tweets:
-        matches = re.findall(r"[hH]osted",tweet)
-        if matches != [ ]:
+        matches = re.findall(r"[hH]osted", tweet)
+        if matches != []:
             match_list.extend([tweet])
 
     # ------ get a list of all the tokens
@@ -224,7 +226,7 @@ def get_hosts(year):
     for line in match_list:
         tokens = tokenizer.tokenize(line)
         all_tokens.extend(tokens)
-        
+
     # ------ remove stopwords from token list
     for t in all_tokens:
         if t.lower() in function_stopwords:
@@ -241,7 +243,7 @@ def get_hosts(year):
     else:
         hosts = [' '.join(common_pairs[0][0])]
 
-    #print(hosts)
+    # print(hosts)
     return hosts
 
 
@@ -251,7 +253,7 @@ def get_awards(year):
     # Your code here
     # 1. list of words related to awards/helper words (maybe too many words? taken from list of awards above)
     award_word_dict = ['actor', 'actress', 'animated', 'award', 'best',  'cecil', 'comedy', 'demille', 'director', 'drama', 'feature', 'film', 'foreign',
-                   'language', 'made', 'mini', 'series', 'motion', 'musical',  'original', 'performance', 'picture', 'role', 'score', 'screenplay', 'series', 'song', 'supporting', 'television']
+                       'language', 'made', 'mini', 'series', 'motion', 'musical',  'original', 'performance', 'picture', 'role', 'score', 'screenplay', 'series', 'song', 'supporting', 'television']
     basic_word_dict = ['a', 'an', 'for', 'in', 'by', 'or', '-', ':', ',']
     # 2. get tweets and tokenize them
     f = 'gg'+str(year)+'.json'
@@ -281,7 +283,7 @@ def get_awards(year):
         if award_string not in awards and len(award_name_builder) > 3:
             awards.append(award_string)
 
-    return awards 
+    return awards
 
 
 def get_nominees(year):
@@ -289,6 +291,24 @@ def get_nominees(year):
     names as keys, and each entry a list of strings. Do NOT change
     the name of this function or what it returns."""
     # Your code here
+    awards = OFFICIAL_AWARDS_1315
+    nominees = dict.fromkeys(awards)
+    nom_dict=['nominate', 'nominee', 'consider','running']
+    lemmatizer = nltk.stem.WordNetLemmatizer()
+    ner_tagger = nltk.parse.CoreNLPParser(url='http://localhost:9000', tagtype='ner')
+    f = 'gg'+str(year)+'.json'
+    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f)]
+    nom_tweets = []
+    possible_names = [nltk.word_tokenize(name)
+                      for name in nameDictionary[str(year-1)]]
+    for tweet in tweets:
+        lemmatized = ' '.join([lemmatizer.lemmatize(w) for w in tweet])
+        if len(set(nom_dict).intersection(lemmatized)) >= 1:
+            nom_tweets.append(tweet)
+    for tweet in win_tweets:
+        classified = st.tag(tweet)
+        print(classified)
+
     return nominees
 
 
@@ -316,13 +336,16 @@ def main():
     what it returns."""
     return
 
+
 def runAllFunctions():
     return
 
 ### BONUS FUNCTIONS ###
 
+
 def best_dressed(year):
     return
+
 
 def worst_dressed(year):
     return
@@ -331,6 +354,7 @@ def worst_dressed(year):
 # run these before main
 getTeamMembers()
 pre_ceremony()
+get_nominees('2013')
 
 if __name__ == "__main__":
     # elapsedSeconds = seconds since 0
