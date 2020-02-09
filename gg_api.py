@@ -508,6 +508,18 @@ def best_dressed(year):
 
 
 def worst_dressed(year):
+    # define an array that will hold the right data
+    global OFFICIAL_AWARDS_FOR_FUNCTION
+    # get the 2013, 2015, 2018, or 2019 data
+    if (year == "2013") or (year == "2015"):
+        OFFICIAL_AWARDS_FOR_FUNCTION = OFFICIAL_AWARDS_1315
+        print("Using OFFICIAL_AWARDS_1315 \n")
+    elif (year == "2018") or (year == "2019"):
+        OFFICIAL_AWARDS_FOR_FUNCTION = OFFICIAL_AWARDS_1819
+        print("Using OFFICIAL_AWARDS_1819 \n")
+    else:
+        ValueError("Please use data from 2013, 2015, 2018, or 2019!")
+    # TODO
     result = []
     return result
 
