@@ -427,9 +427,7 @@ def get_winner(year):
 
 
             if len( candidate ) > 0 and len( award ) > 0:
-                if candidate not in winners.keys():
-                   winners[ candidate ] = []
-                winners[ candidate ].append( award )
+                winners[ award ] = candidate
 
     return winners
 
