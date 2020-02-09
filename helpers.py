@@ -8,6 +8,7 @@ import sys
 import time
 import gzip
 import ssl
+import os
 # opens IMDb url
 import urllib.request
 from collections import Counter
@@ -26,7 +27,7 @@ class TeamMember:
 
 member1 = TeamMember("Mason Secky-Koebel", "msf9197")
 member2 = TeamMember("Tyler Rodgers", "tcr7461")
-member3 = TeamMember("", "")
+member3 = TeamMember("Ryan Jeon", "yjj3249")
 member4 = TeamMember("", "")
 
 def getTeamMembers():
@@ -70,7 +71,11 @@ def getIMDbData():
     print("Downloading name.basics.tsv.gz from https://datasets.imdbws.com/")
     print("\n")
     # download the file and store as nameBasics
-    urllib.request.urlretrieve('https://datasets.imdbws.com/name.basics.tsv.gz', 'nameBasics.tsv.gz')
+
+    if os.path.exists('./nameBasics.tsv.gz'):
+        print("nameBasics.tsv.gz already exists in the directory. Remove the file if you wish  to update!\n")
+    else:
+        urllib.request.urlretrieve('https://datasets.imdbws.com/name.basics.tsv.gz', 'nameBasics.tsv.gz')
     print("Download complete!")
     print("\n")
 
