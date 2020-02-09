@@ -93,7 +93,7 @@ OFFICIAL_AWARDS_1819 = [
     "cecil b. demille award",
 ]
 # choosing between the years
-OFFICIAL_AWARDS_FOR_FUNCTION
+OFFICIAL_AWARDS_FOR_FUNCTION = None
 
 
 global stopword
@@ -121,6 +121,10 @@ AWARD_KEYWORDS = [
 ]
 # tweet dictionary
 TWEETS = {}
+
+award_word_dict = ['actor', 'actress', 'animated', 'award', 'best',  'cecil', 'comedy', 'demille', 'director', 'drama', 'feature', 'film', 'foreign',
+                   'language', 'made', 'mini', 'series', 'motion', 'musical',  'original', 'performance', 'picture', 'role', 'score', 'screenplay', 'series', 'song', 'supporting', 'television']
+
 
 # all of the names in the IMDb database are going to go here
 nameDictionary = {}
@@ -299,6 +303,8 @@ def get_awards(year):
     """Awards is a list of strings. Do NOT change the name
     of this function or what it returns."""
     # Your code here
+    global award_word_dict
+
     # 1. list of words related to awards/helper words (maybe too many words? taken from list of awards above)
     award_word_dict = [
         "actor",
@@ -382,7 +388,49 @@ def get_winner(year):
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns."""
     # Your code here
+    global award_word_dict
+
     winners = {}
+
+    key_words = ['win', 'wins', 'won']
+    basic_word_dict = ['a', 'an', 'for', 'in', 'by', 'or', '-', ':', ',']
+
+
+    f = 'gg'+str(year)+'.json'
+    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, 10000)]
+
+
+    actor_names = nameDictionary[str(year)]
+
+    award_tweets = []
+    for tweet in tweets:
+        if len(set(award_word_dict).intersection(tweet)) > 3:
+            award_tweets.append(tweet)
+
+    for tweet in award_tweets:
+	# There is win keyword present
+        if len( (set(key_words) & set(tweet)) ) > 0:
+            full_tweet = tweet[0]
+            candidate = ''
+            award = ''
+            for i in range(1, len(tweet) ):
+                full_tweet = full_tweet + ' ' + tweet[i]
+                c = tweet[i - 1] + ' ' + tweet[i]
+                if c in actor_names:
+                    candidate = c
+                    break
+
+            for a in OFFICIAL_AWARDS_1315:
+                if award in full_tweet:
+                    award = a
+                    break
+
+
+            if len( candidate ) > 0 and len( award ) > 0:
+                if candidate not in winners.keys():
+                   winners[ candidate ] = []
+                winners[ candidate ].append( award )
+
     return winners
 
 
