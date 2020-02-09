@@ -3,6 +3,9 @@
 from helpers import getTeamMembers
 from helpers import getIMDbData
 from getTweetText import getTweets
+from nltk.tokenize import RegexpTokenizer
+from nltk.corpus import stopwords
+from collections import Counter
 import nltk
 import numpy
 import json
@@ -92,6 +95,8 @@ OFFICIAL_AWARDS_1819 = [
 # choosing between the years
 OFFICIAL_AWARDS_FOR_FUNCTION
 
+global stopword
+
 # Defining program constants
 AWARD_TOKEN_SET = set()
 # possible keywords for the ceremoney itself
@@ -112,6 +117,10 @@ TWEETS = {}
 # all of the names in the IMDb database are going to go here
 nameDictionary = {}
 
+# all the stopwords can be added here
+global function_stopwords
+function_stopwords = stopwords.words('english')
+function_stopwords.extend(['golden', 'globes', 'hosted', 'http', 'co', 'GoldenGlobes', 'backstage', 'presenters', 'best', 'actress', 'actor', 'tv', 'movie', 'miniseries', 'presenting', 'motion', 'picture', 'supporting', 'goldenglobe', 'st', 'award', 'cecil', 'b', 'demille', 'looked', 'whats', 'happening', 'original', 'score', 'screenplay', 'RT', 'hosting', 'goldenglobes'])
 
 def pre_ceremony():
     """This function loads/fetches/processes any data your program
@@ -198,7 +207,44 @@ def pre_ceremony():
 def get_hosts(year):
     """Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns."""
-    # Your code here
+    
+    # ------ get json file
+    f = 'gg'+str(year)+'.json'
+    
+    # ------ get all tweets in a list
+    tweets = getTweets(f, ' ')
+    
+    # ------ use re.findall to get a list of tweets that may have host names
+    match_list = []
+    for tweet in tweets:
+        matches = re.findall(r"[hH]osted",tweet)
+        if matches != [ ]:
+            match_list.extend([tweet])
+
+    # ------ get a list of all the tokens
+    all_tokens = []
+    tokenizer = RegexpTokenizer(r'\w+')
+    for line in match_list:
+        tokens = tokenizer.tokenize(line)
+        all_tokens.extend(tokens)
+        
+    # ------ remove stopwords from token list
+    for t in all_tokens:
+        if t.lower() in function_stopwords:
+            all_tokens.remove(t)
+
+    # ------ find most common pairs (likely the host names)
+    pairs = list(map(tuple, zip(all_tokens, all_tokens[1:])))
+    common_pairs = Counter(pairs).most_common(2)
+
+    # ------ determine whether there are one or two hosts and return
+    if common_pairs[0][1] - common_pairs[1][1] < 15:
+        hosts = [' '.join(common_pairs[0][0])]
+        hosts.append(' '.join(common_pairs[1][0]))
+    else:
+        hosts = [' '.join(common_pairs[0][0])]
+
+    #print(hosts)
     return hosts
 
 
@@ -339,6 +385,7 @@ def worst_dressed(year):
 # run these before main
 getTeamMembers()
 pre_ceremony()
+
 if __name__ == "__main__":
     # elapsedSeconds = seconds since 0
     elapsedSeconds = time.time()
