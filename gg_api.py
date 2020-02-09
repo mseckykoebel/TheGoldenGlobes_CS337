@@ -391,7 +391,7 @@ def get_presenters(year):
     names as keys, and each entry a list of strings. Do NOT change the
     name of this function or what it returns."""
     # Your code here
-    nominees = {}
+    presenters = {}
     return presenters
 
 
