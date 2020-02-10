@@ -800,6 +800,9 @@ def output(
         # output
         output = output[:-2] + "\n\n"
         # award list
+        # generate output for the winners
+        for winner in winners:
+            output += "Winner: " + winners[winner] + "\n\n"
         # generate the output for the awards
         print("List of Predicted Awards:")
         for award in awards:
@@ -819,8 +822,7 @@ def output(
             )
             # skip space
             output = output[:-2] + "\n"
-            # generate output for the winners
-            output += "Winner: " + winners[award] + "\n\n"
+            
         # return the output
         return output
     # generate the Json output if the request is made
@@ -859,7 +861,7 @@ def runAllFunctions(year):
     with open("data" + str(year) + ".json", "w") as f:
         json.dump(jsonOutput, f)"""
     # print to the console
-    #print(humanOutput)
+    print(humanOutput)
     return
 
 
