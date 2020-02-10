@@ -129,7 +129,7 @@ AWARD_KEYWORDS = [
 ]
 # tweet dictionary
 TWEETS = {}
-
+ALL_TWEETS = []
 award_word_dict = ['actor', 'actress', 'animated', 'award', 'best',  'cecil', 'comedy', 'demille', 'director', 'drama', 'feature', 'film', 'foreign',
                    'language', 'made', 'mini', 'series', 'motion', 'musical',  'original', 'performance', 'picture', 'role', 'score', 'screenplay', 'series', 'song', 'supporting', 'television']
 
@@ -201,7 +201,7 @@ def pre_ceremony():
 
     print("Processing data to nameDictionary (data.tsv can be opened with excel)")
     print("\n")
-    
+
     # read the file as strings
     dataContent = str(f.read())
     # split the content where there is a new line
@@ -314,78 +314,81 @@ def get_awards(year):
     of this function or what it returns."""
     # Your code here
     global award_word_dict
+    global ALL_TWEETS
+    allTweets = ALL_TWEETS
 
-    # 1. list of words related to awards/helper words (maybe too many words? taken from list of awards above)
+    # 1. list of words related to awards/helper words
     award_word_dict = [
-        "actor",
-        "actress",
-        "animated",
         "award",
         "best",
-        "cecil",
-        "comedy",
-        "demille",
-        "director",
-        "drama",
-        "feature",
-        "film",
-        "foreign",
-        "language",
-        "made",
-        "mini",
-        "series",
-        "motion",
-        "musical",
-        "original",
         "performance",
         "picture",
-        "role",
-        "score",
-        "screenplay",
-        "series",
-        "song",
-        "supporting",
+        "tv",
         "television",
+        "series",
+        "honored",
+        "honor",
+        "actor",
+        "actress",
+        "song",
+        "motion",
+        "movie"
     ]
     basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
+    invalid_dict = ["loser", "host", "hosts", "hosting",
+                    "opening", "accept", "acceptance", "speech", "nominee"]
     # 2. get tweets and tokenize them
     f = "gg" + str(year) + ".json"
-    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, 100000)]
+    tweets = []
+    for tweet in allTweets:
+        matches = re.findall(
+            r"[bB][eE][sS][tT]|[cC][eE][cC][iI][lL]|[dD][eE][mM][iI][lL][lL][eE]", tweet)
+        if matches:
+            tweets.append(tweet)
+    award_tweets_prelim = [nltk.word_tokenize(tweet) for tweet in tweets]
     # 3. look for award names in tweets
     awards = []  # return array
     award_tweets = []
-    for tweet in tweets:
-        if len(set(award_word_dict).intersection(tweet)) > 3:
+    for tweet in award_tweets_prelim:
+        if len(set(award_word_dict).intersection(tweet)) > 2:
             award_tweets.append(tweet)
     # 4. look for award words in award tweets
     for tweet in award_tweets:
-        if "best" not in tweet and "cecil" not in tweet:
-            continue
-        award_name_builder = []
-        begin = tweet.index(
-            "best") if "best" in tweet else tweet.index("cecil")
-        is_in_award_dict = True
-        for i in range(begin, len(tweet)):
-            if tweet[i] not in award_word_dict and tweet[i] not in basic_word_dict:
-                is_in_award_dict = False
-            if (
-                tweet[i] in award_word_dict
-                or tweet[i] in basic_word_dict
-                and is_in_award_dict
-            ):
-                award_name_builder.append(tweet[i])
-        while award_name_builder[-1] in basic_word_dict:
-            award_name_builder.pop()
-        award_string = " ".join(award_name_builder)
-        if award_string not in awards and len(award_name_builder) > 3:
-            awards.append(award_string)
-    awards = dedup(awards)
+        begin_str = ""
+        if "best" in tweet:
+            begin_str = "best"
+        if "cecil" in tweet:
+            begin_str = "cecil"
+        if begin_str:
+            award_name_builder = []
+            begin = tweet.index(begin_str)
+            is_in_award_dict = 0
+            for i in range(begin, len(tweet)):
+                if tweet[i] in invalid_dict:
+                    continue
+                if tweet[i][0].isupper() and tweet[i] not in award_word_dict and tweet[i] not in basic_word_dict:
+                    continue
+                if tweet[i] not in award_word_dict and tweet[i] not in basic_word_dict:
+                    is_in_award_dict += 1
+                if (
+                    tweet[i] in award_word_dict
+                    or tweet[i] in basic_word_dict
+                    or is_in_award_dict < 2
+                ):
+                    award_name_builder.append(tweet[i])
+            while award_name_builder[-1] in basic_word_dict:
+                award_name_builder.pop()
+            award_string = " ".join(award_name_builder)
+            if award_string not in awards and len(award_name_builder) > 3:
+                awards.append(award_string)
+    awards = clean(awards)
+    print(awards)
     global AWARDS
     AWARDS = awards
     return awards
 
 
-def dedup(awards):
+def clean(awards):
     duplicates = []
     for i in range(len(awards)-1):
         for j in range(i, len(awards)):
@@ -393,8 +396,8 @@ def dedup(awards):
             b = awards[j]
             if a != b:
                 similarity = SequenceMatcher(None, a, b).ratio()
-                if similarity > .85:
-                    if not ('actor' in a and 'actress' in b or 'actor' in a and 'actress' in b):
+                if similarity > .7:
+                    if not ('actor' in a and 'actress' in b or 'actor' in b and 'actress' in a):
                         if not ('actor' in a and 'actor' not in b or 'actress' in a and 'actress' not in b):
                             duplicates.append(b)
     duplicates = set(duplicates)
@@ -419,7 +422,7 @@ def get_nominees(year):
     basic_word_dict = ['a', 'an', 'for', 'in', 'by', 'or', '-', ':', ',']
 
     f = 'gg'+str(year)+'.json'
-    tweets = [nltk.word_tokenize(tweet.lower()) for tweet in getTweets(f, 100000)]
+    tweets = [nltk.word_tokenize(tweet.lower()) for tweet in getTweets(f, " ")]
 
     actor_names = [name.lower() for name in nameDictionary[str(int(year)-1)]]
 
@@ -466,10 +469,8 @@ def get_winner(year):
     key_words = ['win', 'wins', 'won']
     basic_word_dict = ['a', 'an', 'for', 'in', 'by', 'or', '-', ':', ',']
 
-
     f = 'gg'+str(year)+'.json'
     tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, 10000)]
-
 
     actor_names = nameDictionary[str(year)]
 
@@ -479,12 +480,12 @@ def get_winner(year):
             award_tweets.append(tweet)
 
     for tweet in award_tweets:
-	# There is win keyword present
-        if len( (set(key_words) & set(tweet)) ) > 0:
+        # There is win keyword present
+        if len((set(key_words) & set(tweet))) > 0:
             full_tweet = tweet[0]
             candidate = ''
             award = ''
-            for i in range(1, len(tweet) ):
+            for i in range(1, len(tweet)):
                 full_tweet = full_tweet + ' ' + tweet[i]
                 c = tweet[i - 1] + ' ' + tweet[i]
                 if c in actor_names:
@@ -495,8 +496,8 @@ def get_winner(year):
                     award = a
                     break
 
-            if len( candidate ) > 0 and len( award ) > 0:
-                winners[ award ] = candidate
+            if len(candidate) > 0 and len(award) > 0:
+                winners[award] = candidate
 
     return winners
 
@@ -543,8 +544,10 @@ def output(
 
 # function that runs all of the code and returns in in a readable way
 def runAllFunctions(year):
+    global ALL_TWEETS
+    ALL_TWEETS = getTweets('gg'+year+'.json', " ")
     # run all of the functions
-    get_hosts(year)
+    # get_hosts(year)
     get_awards(year)
     get_nominees(year)
     get_presenters(year)
@@ -641,8 +644,7 @@ def worst_dressed(year):
 
 # run these before main
 getTeamMembers()
-pre_ceremony()
-get_nominees('2013')
+# pre_ceremony()
 # get_awards('2013')
 
 if __name__ == "__main__":
