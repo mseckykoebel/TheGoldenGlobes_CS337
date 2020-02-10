@@ -16,6 +16,7 @@ import sys
 import time
 import gzip
 import ssl
+import os
 
 # opens IMDb url
 import urllib.request
@@ -24,12 +25,13 @@ from collections import Counter
 # compare hashable sentences
 from difflib import SequenceMatcher
 
-# spacy and the spacy tokenizer
+# spacy, spacy tokenizer (for best and worst dressed)
 import spacy
 from spacy.tokenizer import Tokenizer
 
 spacy.prefer_gpu()
 nlp = spacy.load("en_core_web_sm")
+tokenizer = Tokenizer(nlp.vocab)
 
 # helper functions
 
@@ -46,11 +48,22 @@ OFFICIAL_AWARDS_1315 = [
     "best performance by an actress in a motion picture - comedy or musical",
     "best performance by an actor in a motion picture - comedy or musical",
     "best animated feature film",
+    "best actor in a comedy or musical TV series",
+    "best motion picture screenplay",
     "best foreign language film",
+    "best director",
+    "best screenplay",
+    "best original score",
     "best supporting actress",
+    "best supporting actor",
     "best actress in a motion picture , comedy or musical",
     "best actor in a motion picture , comedy or musical",
+    "best actor in a motion picture , drama",
+    "best actor in a motion picture - drama",
+    "best actress in a motion picture - drama",
+    "best actress in a motion picture",
     "best actress in a TV series",
+    "best performance",
     "best actor in a TV series",
     "best actress in a drama series",
     "best film in the comedy",
@@ -61,6 +74,9 @@ OFFICIAL_AWARDS_1315 = [
     "best original score - motion picture",
     "best original song - motion picture",
     "best television series - drama",
+    "best animated feature film",
+    "best comedy or musical TV series",
+    "best motion picture , comedy or musical",
     "best performance by an actress in a television series - drama",
     "best performance by an actor in a television series - drama",
     "best television series - comedy or musical",
@@ -101,17 +117,18 @@ OFFICIAL_AWARDS_1819 = [
     "cecil b. demille award",
 ]
 # choosing between the years
-OFFICIAL_AWARDS_FOR_FUNCTION = None
-
+OFFICIAL_AWARDS = None
 
 global stopword
 
 # lists for the return funcion
-HOSTS = []
+HOSTS = {}
 AWARDS = {}
 NOMINEES = {}
 WINNERS = {}
 PRESENTERS = {}
+# tweet dictionary
+ALLTWEETS = {}
 
 # Defining program constants
 AWARD_TOKEN_SET = set()
@@ -127,17 +144,75 @@ AWARD_KEYWORDS = [
     "gg2015",
     "gg2020",
 ]
-# tweet dictionary
-TWEETS = {}
-ALL_TWEETS = []
-award_word_dict = ['actor', 'actress', 'animated', 'award', 'best',  'cecil', 'comedy', 'demille', 'director', 'drama', 'feature', 'film', 'foreign',
-                   'language', 'made', 'mini', 'series', 'motion', 'musical',  'original', 'performance', 'picture', 'role', 'score', 'screenplay', 'series', 'song', 'supporting', 'television']
+
+award_word_dict = [
+    "actor",
+    "actress",
+    "animated",
+    "award",
+    "best",
+    "cecil",
+    "comedy",
+    "demille",
+    "director",
+    "drama",
+    "feature",
+    "film",
+    "foreign",
+    "language",
+    "made",
+    "mini",
+    "series",
+    "motion",
+    "musical",
+    "original",
+    "performance",
+    "picture",
+    "role",
+    "score",
+    "screenplay",
+    "series",
+    "song",
+    "supporting",
+    "television",
+]
 
 
 # all of the names in the IMDb database are going to go here
 nameDictionary = {}
-award_word_dict = ['actor', 'actress', 'animated', 'award', 'best',  'cecil', 'comedy', 'demille', 'director', 'drama', 'feature', 'film', 'foreign',
-                   'language', 'made', 'mini', 'series', 'motion', 'musical',  'original', 'performance', 'picture', 'role', 'score', 'screenplay', 'series', 'song', 'supporting', 'television']
+award_word_dict = [
+    "actor",
+    "actress",
+    "animated",
+    "award",
+    "best",
+    "cecil",
+    "comedy",
+    "demille",
+    "director",
+    "drama",
+    "feature",
+    "film",
+    "foreign",
+    "language",
+    "made",
+    "mini",
+    "series",
+    "motion",
+    "musical",
+    "original",
+    "performance",
+    "picture",
+    "role",
+    "score",
+    "screenplay",
+    "series",
+    "song",
+    "supporting",
+    "television",
+]
+
+movieDictionary = {}
 
 
 # all the stopwords can be added here
@@ -178,25 +253,41 @@ function_stopwords.extend(
         "RT",
         "hosting",
         "goldenglobes",
+        "animated",
+        "film",
+        "zap2it",
+        "always",
+        "good",
+        "series",
+        "goes",
+        "presents",
+        "drama",
+        "needs",
+        "jodie",
+        "foster",
+        "lay",
+        "foreign",
+        "bill",
+        "clinton",
+        "yahoo2movies",
+        "yahoomovies",
+        "introduced",
+        "philstarnews",
+        "lincolnmovie",
+        "nomination",
+        "msntv",
+        "nominee",
+        "lincoln",
+        "maggie",
+        "downtown",
+        "abbey",
     ]
 )
 
 
-def pre_ceremony():
-    """This function loads/fetches/processes any data your program
-    will use, and stores that data in your DB or in a json, csv, or
-    plain text file. It is the first thing the TA will run when grading.
-    Do NOT change the name of this function or what it returns."""
 
-    """Creates a tsv file of the names of all of the actors on the
-    IMDb database, their birth and death year, primary profession, and"""
-
+def init_files():
     global nameDictionary
-
-    print("Beginning the pre-ceremony process...")
-    # TIMER START
-    timer = time.time()
-
     f = getIMDbData()
 
     print("Processing data to nameDictionary (data.tsv can be opened with excel)")
@@ -212,13 +303,54 @@ def pre_ceremony():
     for line in dataSeparators:
         allData.append(line.split("\\t"))
     # define the dictionary of names
+
     global nameDictionary
     # only take names from a certian time (assuming this is not tested earlier)
     for year in range(2010, 2020):
         nameDictionary[str(year)] = []
 
+    print("Processing data to movieDictionary (data.tsv can be opened with excel)")
+    print("\n")
+
+    f = gzip.open("titleBasics.tsv.gz")
+    # read the file as strings
+    dataContent_movie = str(f.read())
+    # split the content where there is a new line
+    dataSeparators_movie = dataContent_movie.split("\\n")
+    # split the lines with tab
+    # all of the data will be in the array
+    allData_movie = []
+    for line in dataSeparators_movie:
+        allData_movie.append(line.split("\\t"))
+    # define the dictionary of movies
+    global movieDictionary
+
+    # only take names from a certian time (assuming this is not tested earlier)
+    for year in range(2010, 2020):
+        movieDictionary[str(year)] = []
+
+    for name in allData_movie[1 : len(allData_movie) - 1]:
+        name_name = name[3] # 1 before is english translation
+        year = name[5]
+
+
+        if name_name == "\\\\N" or year == "\\\\N":
+            continue
+
+
+        year = int(year)
+        interested_years = range(2010,2020)
+
+        # add the years active to the array
+        for year in interested_years:
+            movieDictionary[str(year)].append(name_name)
+
+
+    with open('movieDictionary.json', 'w') as fp:
+        json.dump(movieDictionary, fp)
+
     # iterate through all lines
-    for name in allData[1: len(allData) - 1]:
+    for name in allData[1 : len(allData) - 1]:
         # get the name, birth date, and death date
         name_name = name[1]
         name_birth = name[2]
@@ -249,16 +381,43 @@ def pre_ceremony():
         for year in years_active:
             nameDictionary[str(year)].append(name_name)
 
-    print("Pre-ceremony processing complete.")
 
-    print("\n")
+    with open('nameDictionary.json', 'w') as fp:
+        json.dump(nameDictionary, fp)
+
+def pre_ceremony():
+    """This function loads/fetches/processes any data your program
+    will use, and stores that data in your DB or in a json, csv, or
+    plain text file. It is the first thing the TA will run when grading.
+    Do NOT change the name of this function or what it returns."""
+
+    """Creates a tsv file of the names of all of the actors on the
+    IMDb database, their birth and death year, primary profession, and"""
+
+
+    global movieDictionary
+    global nameDictionary
+
+    print("Beginning the pre-ceremony process...")
+    # TIMER START
+    timer = time.time()
+
+
+    if os.path.exists("./nameDictionary.json") and os.path.exists("./movieDictionary.json"):
+        name_json = open("./nameDictionary.json")
+        movie_json = open("./movieDictionary.json")
+    else:
+        init_files()
+
+    nameDictionary = json.load(name_json)
+    movieDictionary = json.load(movie_json)
+
 
     # TIMER END
-    print("Total runtime: %s seconds" % str(time.time() - timer))
+    print("Total runtime: %s seconds" % str(time.time() - timer) + "\n")
 
     print("\n")
 
-    # print(nameDictionary)
 
     return
 
@@ -266,6 +425,8 @@ def pre_ceremony():
 def get_hosts(year):
     """Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns."""
+
+    print("Getting list of hosts for year: " + year + "\n")
 
     # ------ get json file
     f = "gg" + str(year) + ".json"
@@ -306,6 +467,7 @@ def get_hosts(year):
     # print(hosts)
     global HOSTS
     HOSTS = hosts
+    print("Hosts gathered! \n")
     return hosts
 
 
@@ -318,6 +480,9 @@ def get_awards(year):
     allTweets = ALL_TWEETS
 
     # 1. list of words related to awards/helper words
+    # starting
+    print("Getting list of awards for year: " + year + "\n")
+    # 1. list of words related to awards/helper words (maybe too many words? taken from list of awards above)
     award_word_dict = [
         "award",
         "best",
@@ -382,23 +547,33 @@ def get_awards(year):
             if award_string not in awards and len(award_name_builder) > 3:
                 awards.append(award_string)
     awards = clean(awards)
-    print(awards)
     global AWARDS
     AWARDS = awards
+    print("Awards gathered! \n")
     return awards
 
 
 def clean(awards):
     duplicates = []
-    for i in range(len(awards)-1):
+    for i in range(len(awards) - 1):
         for j in range(i, len(awards)):
             a = awards[i]
             b = awards[j]
             if a != b:
                 similarity = SequenceMatcher(None, a, b).ratio()
-                if similarity > .7:
-                    if not ('actor' in a and 'actress' in b or 'actor' in b and 'actress' in a):
-                        if not ('actor' in a and 'actor' not in b or 'actress' in a and 'actress' not in b):
+                if similarity > 0.7:
+                    if not (
+                        "actor" in a
+                        and "actress" in b
+                        or "actor" in a
+                        and "actress" in b
+                    ):
+                        if not (
+                            "actor" in a
+                            and "actor" not in b
+                            or "actress" in a
+                            and "actress" not in b
+                        ):
                             duplicates.append(b)
     duplicates = set(duplicates)
     for x in duplicates:
@@ -413,18 +588,30 @@ def get_nominees(year):
     the name of this function or what it returns."""
     # Your code here
     global award_word_dict
-
+    # print
+    print("Getting the nominees for year: " + year + "\n")
     nominees = {k: [] for k in OFFICIAL_AWARDS_1315}
-    awards_tokenized = [nltk.word_tokenize(
-        award) for award in OFFICIAL_AWARDS_1315]
-    key_words = ['nominates', 'nominees', 'nominate', 'nominated', 'nominee', 'award',
-                 'nom', 'noms', 'win', 'won', 'wins', 'winner']
-    basic_word_dict = ['a', 'an', 'for', 'in', 'by', 'or', '-', ':', ',']
+    awards_tokenized = [nltk.word_tokenize(award) for award in OFFICIAL_AWARDS_1315]
+    key_words = [
+        "nominates",
+        "nominees",
+        "nominate",
+        "nominated",
+        "nominee",
+        "award",
+        "nom",
+        "noms",
+        "win",
+        "won",
+        "wins",
+        "winner",
+    ]
+    basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
 
-    f = 'gg'+str(year)+'.json'
-    tweets = [nltk.word_tokenize(tweet.lower()) for tweet in getTweets(f, " ")]
+    f = "gg" + str(year) + ".json"
+    tweets = [nltk.word_tokenize(tweet.lower()) for tweet in getTweets(f, 100000)]
 
-    actor_names = [name.lower() for name in nameDictionary[str(int(year)-1)]]
+    actor_names = [name.lower() for name in nameDictionary[str(int(year) - 1)]]
 
     award_tweets = []
     for tweet in tweets:
@@ -435,25 +622,28 @@ def get_nominees(year):
         # There is nominee keyword present
         if len((set(key_words) & set(tweet))) > 0:
             # full_tweet = tweet[0]
-            candidate = ''
-            award = ''
+            candidate = ""
+            award = ""
             for i in range(1, len(tweet)):
                 # full_tweet = full_tweet + ' ' + tweet[i]
-                c = tweet[i - 1] + ' ' + tweet[i]
+                c = tweet[i - 1] + " " + tweet[i]
                 if c in actor_names:
                     candidate = c
                     break
 
             if candidate:
                 for a in awards_tokenized:
-                    if len(set(a).intersection(tweet)) > len(set(a))/2:
+                    if len(set(a).intersection(tweet)) > len(set(a)) / 2:
                         award = " ".join(a)
                         break
 
             if candidate and award:
                 if candidate not in nominees[award]:
                     nominees[award].append(candidate)
-    print(nominees)
+    # print(nominees)
+    global NOMINEES
+    NOMINEES = nominees
+    print("Nominees Gathered! \n")
     return nominees
 
 
@@ -464,15 +654,21 @@ def get_winner(year):
     # Your code here
     global award_word_dict
 
+    print("Now gathering winner for year: " + str(year) + "\n")
+    
+    timer = time.time()
     winners = {}
 
     key_words = ['win', 'wins', 'won']
     basic_word_dict = ['a', 'an', 'for', 'in', 'by', 'or', '-', ':', ',']
+    ban_words = ['Gold', 'Dan', 'It', '.', '99', 'B', 'M', 'Adele', 'Home', 'Variety', 'Ann', 'Go', 'Z', 'X', 'W', 'A', 'C', 'D', 'E', 'Ben', 'Les', 'Jack', 'Dani', 'Lena', 'Guide', 'Jim', 'H', 'George', 'S', 'e', 'Mis', 'Lawrence', 'Skyfall', ',', 'AM', 'all', 'Waltz', 'Lewis', 's', 'z', 'Carrie']
 
     f = 'gg'+str(year)+'.json'
-    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, 10000)]
+    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, 100000)]
 
     actor_names = nameDictionary[str(year)]
+    movie_names = movieDictionary[str(year - 1)]
+
 
     award_tweets = []
     for tweet in tweets:
@@ -488,8 +684,13 @@ def get_winner(year):
             for i in range(1, len(tweet)):
                 full_tweet = full_tweet + ' ' + tweet[i]
                 c = tweet[i - 1] + ' ' + tweet[i]
-                if c in actor_names:
+                if (c in actor_names) and ( i + 1 < len(tweet) and tweet[i + 1] in key_words ) :
                     candidate = c
+            if len(candidate) == 0:
+                for m in movie_names:
+                    if (m in full_tweet) and (m not in ban_words) and (full_tweet[ full_tweet.index(m) + len(m) + 1 : full_tweet.index(m) + len(m) + 5 ] in key_words) :
+                        candidate = m
+                        break
 
             for a in OFFICIAL_AWARDS_1315:
                 if a in full_tweet:
@@ -499,6 +700,10 @@ def get_winner(year):
             if len(candidate) > 0 and len(award) > 0:
                 winners[award] = candidate
 
+    global WINNERS
+    WINNERS = winners
+    print("Winners Gathered! \n")
+    print("Total runtime: %s seconds" % str(time.time() - timer))
     return winners
 
 
@@ -506,8 +711,149 @@ def get_presenters(year):
     """Presenters is a dictionary with the hard coded award
     names as keys, and each entry a list of strings. Do NOT change the
     name of this function or what it returns."""
-    # Your code here
     presenters = {}
+    print("Getting list of presenters for year: " + year + "\n")
+    # ------ get json file
+    f = "gg" + str(year) + ".json"
+
+    # ------ get all tweets in a list
+    tweets = getTweets(f, " ")
+
+    # ------ get award names and populate dictionary
+    if (year == "2013") or (year == "2015"):
+        awards_for_func = OFFICIAL_AWARDS_1315
+
+    elif (year == "2018") or (year == "2019"):
+        awards_for_func = OFFICIAL_AWARDS_1819
+
+    for award in awards_for_func:
+        presenters[award] = []
+
+    # ------ use re.findall to get a list of tweets that may have presenter names
+    match_list = []
+    for tweet in tweets:
+        matches = re.findall(r"[Pp]resent?", tweet) or re.findall(
+            r"[iI]ntroduce?", tweet
+        )
+        if matches != []:
+            match_list.extend([tweet])
+
+    # ------ get a list of key words
+    kw = [
+        "cecil",
+        "drama",
+        "actress",
+        "actor",
+        "comedy",
+        "animated",
+        "film",
+        "foreign",
+        "supporting",
+        "director",
+        "screenplay",
+        "original",
+        "song",
+        "score",
+        "television",
+        "picture",
+        "series",
+        "musical",
+    ]
+
+    no_picture = ["foreign", "screenplay", "director"]
+
+    # ------ loop through awards
+    for award in awards_for_func:
+
+        tokenizer = RegexpTokenizer(r"\w+")
+        tokens = list(tokenizer.tokenize(award))
+        same_words = list(set(tokens).intersection(kw))
+
+        # ------ make substitutions
+        if (
+            "foreign" or "screenplay" or "director"
+        ) in same_words and "picture" in same_words:
+            if "picture" in same_words:
+                same_words.remove("picture")
+
+            if "picture" in same_words:
+                same_words.append("movie")
+
+        if "television" in same_words:
+            same_words.append("tv")
+
+        # ------ form regular expressions
+        reg_exp = []
+        for word in same_words:
+            if word not in ["picture", "movie", "tv", "television", "series"]:
+                regex = r"[" + word[0].lower() + word[0].upper() + "]" + word[1:] + "?"
+                reg_exp.append(regex)
+
+        # ------ use re.findall to get tweet matches
+        # ------ several if clauses to make substitutions
+        presenter_tweets = []
+
+        for tweet in match_list:
+            if "television" and "picture" in same_words:
+                if (
+                    all(re.findall(exp, tweet) for exp in reg_exp)
+                    and (
+                        re.findall(r"[Mm]ovie?", tweet)
+                        or re.findall(r"[Pp]icture?", tweet)
+                    )
+                    and (
+                        re.findall(r"[Tt]elevision?", tweet)
+                        or re.findall(r"[Tt]v?", tweet)
+                        or re.findall(r"[Tt]V?", tweet)
+                        or re.findall(r"[Ss]eries?", tweet)
+                    )
+                ):
+                    presenter_tweets.extend([tweet])
+
+                elif "picture" in same_words:
+                    if all(re.findall(exp, tweet) for exp in reg_exp) and (
+                        re.findall(r"[Mm]ovie?", tweet)
+                        or re.findall(r"[Pp]icture?", tweet)
+                    ):
+                        presenter_tweets.extend([tweet])
+
+                elif "television" or "series" in same_words:
+                    if all(re.findall(exp, tweet) for exp in reg_exp) and (
+                        re.findall(r"[Tt]elevision?", tweet)
+                        or re.findall(r"[Tt]v?", tweet)
+                        or re.findall(r"[Tt]V?", tweet)
+                    ):
+                        presenter_tweets.extend([tweet])
+            else:
+                if all(re.findall(exp, tweet) for exp in reg_exp):
+                    presenter_tweets.extend([tweet])
+
+        # ------ get names in tweets
+        common_names = []
+        for tweet in presenter_tweets:
+            match = re.findall(
+                r"[A-Z][a-z]+,?\s+(?:[A-Z][a-z]*\.?\s*)?[A-Z][a-z]+", tweet
+            )
+            if match != []:
+                common_names.append(match)
+
+        # ------ remove stopwords
+        new_list = []
+        for name_lst in common_names:
+            for name in name_lst:
+                words = name.split()
+                if all(word.lower() not in function_stopwords for word in words):
+                    new_list.append(name)
+
+        counter = Counter(new_list)
+        counter = dict(counter.most_common(2))
+        final_list = list(counter.keys())
+        presenters[award] = final_list
+
+    global PRESENTERS
+    PRESENTERS = presenters
+    print("Presenters Gathered! \n")
+    # print(presenters)
     return presenters
 
 
@@ -522,24 +868,55 @@ def main():
 
 # function that returns human-readbale format for data, as well as json format
 def output(
-    type,
-    hosts=[],
-    awards={},
-    nominees={},
-    winners={},
-    presenters={},
-    bestAndWorstDressed=[],
+    type, hosts=[], awards=[], nominees={}, winners={}, presenters={},
 ):
+    # default to be official awards from what we gathered
+    officialAwards = AWARDS
+
+    output = None
     # if it is human readable or json, do something else
     if (type == "human") or (type == "Human"):
         output = ""
+        # hosts if there is more than one
+        output += "Host" + ("s: " if len(hosts) > 1 else ": ")
+        # go through and grab the hosts
+        for host in hosts:
+            output += host + ", "
+        # output
+        output = output[:-2] + "\n\n"
+        # AWARDS
+        for i in range(len(officialAwards)):
+            award = officialAwards[i]
+            # generate the output for the awards
+            output += "Award: " + award + "\n"
+            # generate the output for the presenters
+            output += "Presenters: " + "".join(
+                [(str(pres) + ", ") for pres in presenters[award]]
+            )
+            # skip space
+            output = output[:-2] + "\n"
+            # generate the output for the nominees
+            output += "Nominees: " + "".join(
+                [(str(nom) + ", ") for nom in nominees[award]]
+            )
+            # skip space
+            output = output[:-2] + "\n"
+            # generate output for the winners
+            output += "Winner: " + winners[award] + "\n\n"
+        # return the output
         return output
+    # generate the Json output if the request is made
     elif (type == "json") or (type == "JSON") or (type == "Json"):
-        output = {}
+        jsonOutput = {}
+        jsonOutput["hosts"] = hosts
+        jsonOutput["award_data"] = {}
+        for i in range(len(officialAwards)):
+            award = officialAwards[i]
+            jsonOutput["award_data"][award] = {"THIS WILL BE FILLED OUT!!!"}
         # return the right output
-        return output
-    else:
-        return None
+        output = jsonOutput
+
+    return output
 
 
 # function that runs all of the code and returns in in a readable way
@@ -550,46 +927,54 @@ def runAllFunctions(year):
     # get_hosts(year)
     get_awards(year)
     get_nominees(year)
-    get_presenters(year)
     get_winner(year)
-    bestDressed = best_dressed(year)
-    worstDressed = worst_dressed(year)
+    get_presenters(year)
+    # bestDressed = best_dressed(year)
+    # worstDressed = worst_dressed(year)
     # output
-    humanOutput = output(
-        "human",
-        HOSTS,
-        AWARDS,
-        NOMINEES,
-        WINNERS,
-        PRESENTERS,
-        {"Best Dressed": bestDressed, "Worst Dressed": worstDressed},
-    )
-    jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
+    print("Generating output and output file...\n")
+    # get the right year
+    humanOutput = output("human", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
+    # add this when it is done!!!!! :
+    # {"Best Dressed": bestDressed, "Worst Dressed": worstDressed}
+    # jsonOutput = output("json", HOSTS, WINNERS)
+    """jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
     # create the json file
     with open("data" + str(year) + ".json", "w") as f:
-        json.dump(jsonOutput, f)
+        json.dump(jsonOutput, f)"""
     # print to the console
     print(humanOutput)
     return
 
 
-### BONUS FUNCTIONS ###
+### BONUS FUNCTIONS AND HELPERS ###
 
 
 def best_dressed(year):
-    # define an array that will hold the right data
-    global OFFICIAL_AWARDS_FOR_FUNCTION
-    # get the 2013, 2015, 2018, or 2019 data
+    # Get the right set of awards based on year
+    global OFFICIAL_AWARDS
     if (year == "2013") or (year == "2015"):
-        OFFICIAL_AWARDS_FOR_FUNCTION = OFFICIAL_AWARDS_1315
-        print("Using OFFICIAL_AWARDS_1315 \n")
-    elif (year == "2018") or (year == "2019"):
-        OFFICIAL_AWARDS_FOR_FUNCTION = OFFICIAL_AWARDS_1819
-        print("Using OFFICIAL_AWARDS_1819 \n")
+        OFFICIAL_AWARDS = OFFICIAL_AWARDS_1315
     else:
-        ValueError("Please use data from 2013, 2015, 2018, or 2019!")
+        OFFICIAL_AWARDS = OFFICIAL_AWARDS_1819
     # tweets array
-    global TWEETS
+    global ALLTWEETS
+    # print
+    print("Gathering the list of best dressed attendees for year: " + year + "\n")
+    stopwords = [
+        "#goldenglobes",
+        "goldenglobes2013",
+        "goldenglobes2015",
+        "goldenglobes2018",
+        "goldenglobes2019",
+        "golden globes",
+        "golden",
+        "globes",
+        "gg2013",
+        "gg2015",
+        "gg2018",
+        "gg2019",
+    ]
     bestDressedKeywords = [
         "alluring",
         "appealing",
@@ -614,38 +999,43 @@ def best_dressed(year):
         "great outfit",
         "best dressed",
     ]
+    # iterate through all of the tweets and if one of the key words matches, add it to the matching tweets array
+    matchingTweets = []
+    for tweet in ALLTWEETS:
+        # add to the matching tweet array of any of the words are the same
+        if any(word in tweet for word in bestDressedKeywords):
+            matchingTweets.append(tweet)
 
     result = []
-    # iterate through all of the tweets and if one of the key words matches, add it to the matching tweets array
-    # for tweet in TWEETS
-    # matchingTweets = []
-    # matchingTweets.append(tweet)
-
-    # listOfBestDressed = .....
+    # ...
+    # ...
+    # ...
     return result
 
 
 def worst_dressed(year):
     # define an array that will hold the right data
-    global OFFICIAL_AWARDS_FOR_FUNCTION
+    global OFFICIAL_AWARDS
     # get the 2013, 2015, 2018, or 2019 data
     if (year == "2013") or (year == "2015"):
-        OFFICIAL_AWARDS_FOR_FUNCTION = OFFICIAL_AWARDS_1315
+        OFFICIAL_AWARDS = OFFICIAL_AWARDS_1315
         print("Using OFFICIAL_AWARDS_1315 \n")
     elif (year == "2018") or (year == "2019"):
-        OFFICIAL_AWARDS_FOR_FUNCTION = OFFICIAL_AWARDS_1819
+        OFFICIAL_AWARDS = OFFICIAL_AWARDS_1819
         print("Using OFFICIAL_AWARDS_1819 \n")
     else:
         ValueError("Please use data from 2013, 2015, 2018, or 2019!")
-    # TODO
+    # resulting array and tweets of interest
     result = []
+    # ...
+    # ...
+    # ...
     return result
 
 
 # run these before main
 getTeamMembers()
-# pre_ceremony()
-# get_awards('2013')
+pre_ceremony()
 
 if __name__ == "__main__":
     # elapsedSeconds = seconds since 0
@@ -653,6 +1043,7 @@ if __name__ == "__main__":
     # run the function
     main()
     # run the helper functions with the given year
-    runAllFunctions(sys.argv[1])
+    year = sys.argv[1]
+    runAllFunctions(year)
     # print the amount of time the program took
     print(time.time() - elapsedSeconds)
