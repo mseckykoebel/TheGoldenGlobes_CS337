@@ -28,11 +28,11 @@ class TeamMember:
 member1 = TeamMember("Mason Secky-Koebel", "msf9197")
 member2 = TeamMember("Tyler Rodgers", "tcr7461")
 member3 = TeamMember("Ryan Jeon", "yjj3249")
-member4 = TeamMember("", "")
+member4 = TeamMember("Meera Ramakrishnan", "")
 
 def getTeamMembers():
     print('Team members: \n')
-    print(member1._get_name(), member2._get_name(), member3._get_name(), member4._get_name())
+    print(member1._get_name() + ", " + member2._get_name() + ", " + member3._get_name() + ", " + member4._get_name())
     print("\n")
 
 def extractText(json_obj):
@@ -67,17 +67,14 @@ def getIMDbData():
     # this can be opened with excel, or VSCode
     ssl._create_default_https_context = ssl._create_unverified_context
     # download names from IMDB about (https://datasets.imdbws.com/)
-    print("\n")
-    print("Downloading name.basics.tsv.gz from https://datasets.imdbws.com/")
-    print("\n")
+    print("Downloading name.basics.tsv.gz from https://datasets.imdbws.com/ \n")
     # download the file and store as nameBasics
 
     if os.path.exists('./nameBasics.tsv.gz'):
-        print("nameBasics.tsv.gz already exists in the directory. Remove the file if you wish  to update!\n")
+        print("nameBasics.tsv.gz already exists in the directory. Remove the file if you wish to update! \n")
     else:
         urllib.request.urlretrieve('https://datasets.imdbws.com/name.basics.tsv.gz', 'nameBasics.tsv.gz')
-    print("Download complete!")
-    print("\n")
+    print("Download complete! \n")
 
     # make and return the file
     file = gzip.open('nameBasics.tsv.gz')
