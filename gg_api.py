@@ -16,6 +16,7 @@ import sys
 import time
 import gzip
 import ssl
+import os
 
 # opens IMDb url
 import urllib.request
@@ -47,11 +48,22 @@ OFFICIAL_AWARDS_1315 = [
     "best performance by an actress in a motion picture - comedy or musical",
     "best performance by an actor in a motion picture - comedy or musical",
     "best animated feature film",
+    "best actor in a comedy or musical TV series",
+    "best motion picture screenplay",
     "best foreign language film",
+    "best director",
+    "best screenplay",
+    "best original score",
     "best supporting actress",
+    "best supporting actor",
     "best actress in a motion picture , comedy or musical",
     "best actor in a motion picture , comedy or musical",
+    "best actor in a motion picture , drama",
+    "best actor in a motion picture - drama",
+    "best actress in a motion picture - drama",
+    "best actress in a motion picture",
     "best actress in a TV series",
+    "best performance",
     "best actor in a TV series",
     "best actress in a drama series",
     "best film in the comedy",
@@ -62,6 +74,9 @@ OFFICIAL_AWARDS_1315 = [
     "best original score - motion picture",
     "best original song - motion picture",
     "best television series - drama",
+    "best animated feature film",
+    "best comedy or musical TV series",
+    "best motion picture , comedy or musical",
     "best performance by an actress in a television series - drama",
     "best performance by an actor in a television series - drama",
     "best television series - comedy or musical",
@@ -197,6 +212,8 @@ award_word_dict = [
     "television",
 ]
 
+movieDictionary = {}
+
 
 # all the stopwords can be added here
 global function_stopwords
@@ -268,21 +285,9 @@ function_stopwords.extend(
 )
 
 
-def pre_ceremony():
-    """This function loads/fetches/processes any data your program
-    will use, and stores that data in your DB or in a json, csv, or
-    plain text file. It is the first thing the TA will run when grading.
-    Do NOT change the name of this function or what it returns."""
 
-    """Creates a tsv file of the names of all of the actors on the
-    IMDb database, their birth and death year, primary profession, and"""
-
+def init_files():
     global nameDictionary
-
-    print("Beginning the pre-ceremony process...")
-    # TIMER START
-    timer = time.time()
-
     f = getIMDbData()
 
     print("Processing data to nameDictionary (data.tsv can be opened with excel)")
@@ -298,10 +303,51 @@ def pre_ceremony():
     for line in dataSeparators:
         allData.append(line.split("\\t"))
     # define the dictionary of names
+
     global nameDictionary
     # only take names from a certian time (assuming this is not tested earlier)
     for year in range(2010, 2020):
         nameDictionary[str(year)] = []
+
+    print("Processing data to movieDictionary (data.tsv can be opened with excel)")
+    print("\n")
+
+    f = gzip.open("titleBasics.tsv.gz")
+    # read the file as strings
+    dataContent_movie = str(f.read())
+    # split the content where there is a new line
+    dataSeparators_movie = dataContent_movie.split("\\n")
+    # split the lines with tab
+    # all of the data will be in the array
+    allData_movie = []
+    for line in dataSeparators_movie:
+        allData_movie.append(line.split("\\t"))
+    # define the dictionary of movies
+    global movieDictionary
+
+    # only take names from a certian time (assuming this is not tested earlier)
+    for year in range(2010, 2020):
+        movieDictionary[str(year)] = []
+
+    for name in allData_movie[1 : len(allData_movie) - 1]:
+        name_name = name[3] # 1 before is english translation
+        year = name[5]
+
+
+        if name_name == "\\\\N" or year == "\\\\N":
+            continue
+
+
+        year = int(year)
+        interested_years = range(2010,2020)
+
+        # add the years active to the array
+        for year in interested_years:
+            movieDictionary[str(year)].append(name_name)
+
+
+    with open('movieDictionary.json', 'w') as fp:
+        json.dump(movieDictionary, fp)
 
     # iterate through all lines
     for name in allData[1 : len(allData) - 1]:
@@ -335,16 +381,43 @@ def pre_ceremony():
         for year in years_active:
             nameDictionary[str(year)].append(name_name)
 
-    print("Pre-ceremony processing complete.")
 
-    print("\n")
+    with open('nameDictionary.json', 'w') as fp:
+        json.dump(nameDictionary, fp)
+
+def pre_ceremony():
+    """This function loads/fetches/processes any data your program
+    will use, and stores that data in your DB or in a json, csv, or
+    plain text file. It is the first thing the TA will run when grading.
+    Do NOT change the name of this function or what it returns."""
+
+    """Creates a tsv file of the names of all of the actors on the
+    IMDb database, their birth and death year, primary profession, and"""
+
+
+    global movieDictionary
+    global nameDictionary
+
+    print("Beginning the pre-ceremony process...")
+    # TIMER START
+    timer = time.time()
+
+
+    if os.path.exists("./nameDictionary.json") and os.path.exists("./movieDictionary.json"):
+        name_json = open("./nameDictionary.json")
+        movie_json = open("./movieDictionary.json")
+    else:
+        init_files()
+
+    nameDictionary = json.load(name_json)
+    movieDictionary = json.load(movie_json)
+
 
     # TIMER END
     print("Total runtime: %s seconds" % str(time.time() - timer) + "\n")
 
     print("\n")
 
-    # print(nameDictionary)
 
     return
 
@@ -577,17 +650,22 @@ def get_winner(year):
     Do NOT change the name of this function or what it returns."""
     # Your code here
     global award_word_dict
-    # winners gathered
-    print("Now gathering winner for year: " + year + "\n")
+
+    print("Now gathering winner for year: " + str(year) + "\n")
+    
+    timer = time.time()
     winners = {}
 
-    key_words = ["win", "wins", "won"]
-    basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
+    key_words = ['win', 'wins', 'won']
+    basic_word_dict = ['a', 'an', 'for', 'in', 'by', 'or', '-', ':', ',']
+    ban_words = ['Gold', 'Dan', 'It', '.', '99', 'B', 'M', 'Adele', 'Home', 'Variety', 'Ann', 'Go', 'Z', 'X', 'W', 'A', 'C', 'D', 'E', 'Ben', 'Les', 'Jack', 'Dani', 'Lena', 'Guide', 'Jim', 'H', 'George', 'S', 'e', 'Mis', 'Lawrence', 'Skyfall', ',', 'AM', 'all', 'Waltz', 'Lewis', 's', 'z', 'Carrie']
 
-    f = "gg" + str(year) + ".json"
-    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, 10000)]
+    f = 'gg'+str(year)+'.json'
+    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, 100000)]
 
     actor_names = nameDictionary[str(year)]
+    movie_names = movieDictionary[str(year - 1)]
+
 
     award_tweets = []
     for tweet in tweets:
@@ -598,24 +676,31 @@ def get_winner(year):
         # There is win keyword present
         if len((set(key_words) & set(tweet))) > 0:
             full_tweet = tweet[0]
-            candidate = ""
-            award = ""
-            for i in range(1, len(tweet)):
-                full_tweet = full_tweet + " " + tweet[i]
-                c = tweet[i - 1] + " " + tweet[i]
-                if c in actor_names:
+            candidate = ''
+            award = ''
+            for i in range(1, len(tweet) ):
+                full_tweet = full_tweet + ' ' + tweet[i]
+                c = tweet[i - 1] + ' ' + tweet[i]
+                if (c in actor_names) and ( i + 1 < len(tweet) and tweet[i + 1] in key_words ) :
                     candidate = c
+            if len(candidate) == 0:
+                for m in movie_names:
+                    if (m in full_tweet) and (m not in ban_words) and (full_tweet[ full_tweet.index(m) + len(m) + 1 : full_tweet.index(m) + len(m) + 5 ] in key_words) :
+                        candidate = m
+                        break
 
             for a in OFFICIAL_AWARDS_1315:
                 if a in full_tweet:
                     award = a
                     break
 
-            if len(candidate) > 0 and len(award) > 0:
-                winners[award] = candidate
+            if len( candidate ) > 0 and len( award ) > 0:
+                winners[ award ] = candidate
+
     global WINNERS
     WINNERS = winners
     print("Winners Gathered! \n")
+    print("Total runtime: %s seconds" % str(time.time() - timer))
     return winners
 
 
