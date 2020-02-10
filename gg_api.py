@@ -201,8 +201,7 @@ def pre_ceremony():
 
     print("Processing data to nameDictionary (data.tsv can be opened with excel)")
     print("\n")
-
-    #f = gzip.open("nameBasics.tsv.gz")
+    
     # read the file as strings
     dataContent = str(f.read())
     # split the content where there is a new line
