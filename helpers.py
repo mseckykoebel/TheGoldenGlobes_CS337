@@ -76,6 +76,20 @@ def getIMDbData():
         urllib.request.urlretrieve('https://datasets.imdbws.com/name.basics.tsv.gz', 'nameBasics.tsv.gz')
     print("Download complete! \n")
 
+    print("Downloading title.basics.tsv.gz from https://datasets.imdbws.com/")
+    print("\n")
+    # download the file and store as nameBasics
+
+    if os.path.exists('./titleBasics.tsv.gz'):
+        print("title.basics.tsv.gz already exists in the directory. Remove the file if you wish  to update!\n")
+    else:
+        urllib.request.urlretrieve('https://datasets.imdbws.com/title.basics.tsv.gz', 'titleBasics.tsv.gz')
+    print("Download complete!")
+    print("\n")
+
+
+
+
     # make and return the file
     file = gzip.open('nameBasics.tsv.gz')
     return file
