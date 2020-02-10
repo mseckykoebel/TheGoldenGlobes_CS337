@@ -274,7 +274,7 @@ def init_files():
     # define the dictionary of names
 
     global nameDictionary
-    # only take names from a certian time (assuming this is not tested earlier)
+    # only take names from a certain time (assuming this is not tested earlier)
     for year in range(2010, 2020):
         nameDictionary[str(year)] = []
 
@@ -294,7 +294,7 @@ def init_files():
     # define the dictionary of movies
     global movieDictionary
 
-    # only take names from a certian time (assuming this is not tested earlier)
+    # only take names from a certain time (assuming this is not tested earlier)
     for year in range(2010, 2020):
         movieDictionary[str(year)] = []
 
@@ -452,6 +452,7 @@ def get_awards(year):
     # 1. list of words related to awards/helper words
     # starting
     print("Getting list of awards for year: " + year + "\n")
+    award_timer = time.time()
     # 1. list of words related to awards/helper words (maybe too many words? taken from list of awards above)
     award_word_dict = [
         "award",
@@ -519,7 +520,9 @@ def get_awards(year):
     awards = clean(awards)
     global AWARDS
     AWARDS = awards
+    print(awards)
     print("Awards gathered! \n")
+    print("Total AWARDS runtime: %s seconds" % str(time.time() - award_timer))
     return awards
 
 
@@ -892,7 +895,8 @@ def output(
 # function that runs all of the code and returns in in a readable way
 def runAllFunctions(year):
     global ALL_TWEETS
-    ALL_TWEETS = getTweets('gg'+year+'.json', " ")
+    ALL_TWEETS = getTweets('gg'+year+'.json', 150000)
+    # can't actually do all tweets bc 2015 has like 1.7 million and that takes too long :)
     # run all of the functions
     get_hosts(year)
     get_awards(year)
