@@ -178,11 +178,9 @@ award_word_dict = [
 ]
 
 
-# all of the names in the IMDb database are going to go here
+# all of the names and movie titles are going to go here
 nameDictionary = {}
-
 movieDictionary = {}
-
 
 # all the stopwords can be added here
 global function_stopwords
@@ -254,7 +252,6 @@ function_stopwords.extend(
 )
 
 
-
 def init_files():
     global nameDictionary
     f = getIMDbData()
@@ -299,23 +296,20 @@ def init_files():
         movieDictionary[str(year)] = []
 
     for name in allData_movie[1 : len(allData_movie) - 1]:
-        name_name = name[3] # 1 before is english translation
+        name_name = name[3]  # 1 before is english translation
         year = name[5]
-
 
         if name_name == "\\\\N" or year == "\\\\N":
             continue
 
-
         year = int(year)
-        interested_years = range(2010,2020)
+        interested_years = range(2010, 2020)
 
         # add the years active to the array
         for year in interested_years:
             movieDictionary[str(year)].append(name_name)
 
-
-    with open('movieDictionary.json', 'w') as fp:
+    with open("movieDictionary.json", "w") as fp:
         json.dump(movieDictionary, fp)
 
     # iterate through all lines
@@ -350,9 +344,9 @@ def init_files():
         for year in years_active:
             nameDictionary[str(year)].append(name_name)
 
-
-    with open('nameDictionary.json', 'w') as fp:
+    with open("nameDictionary.json", "w") as fp:
         json.dump(nameDictionary, fp)
+
 
 def pre_ceremony():
     """This function loads/fetches/processes any data your program
@@ -363,7 +357,6 @@ def pre_ceremony():
     """Creates a tsv file of the names of all of the actors on the
     IMDb database, their birth and death year, primary profession, and"""
 
-
     global movieDictionary
     global nameDictionary
 
@@ -373,7 +366,9 @@ def pre_ceremony():
     name_json = None
     movie_json = None
 
-    if os.path.exists("./nameDictionary.json") and os.path.exists("./movieDictionary.json"):
+    if os.path.exists("./nameDictionary.json") and os.path.exists(
+        "./movieDictionary.json"
+    ):
         name_json = open("./nameDictionary.json")
         movie_json = open("./movieDictionary.json")
     else:
@@ -382,12 +377,10 @@ def pre_ceremony():
     nameDictionary = json.load(name_json)
     movieDictionary = json.load(movie_json)
 
-
     # TIMER END
     print("Total runtime: %s seconds" % str(time.time() - timer) + "\n")
 
     print("\n")
-
 
     return
 
@@ -467,17 +460,27 @@ def get_awards(year):
         "actress",
         "song",
         "motion",
-        "movie"
+        "movie",
     ]
     basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
-    invalid_dict = ["loser", "host", "hosts", "hosting",
-                    "opening", "accept", "acceptance", "speech", "nominee"]
+    invalid_dict = [
+        "loser",
+        "host",
+        "hosts",
+        "hosting",
+        "opening",
+        "accept",
+        "acceptance",
+        "speech",
+        "nominee",
+    ]
     # 2. get tweets and tokenize them
     f = "gg" + str(year) + ".json"
     tweets = []
     for tweet in allTweets:
         matches = re.findall(
-            r"[bB][eE][sS][tT]|[cC][eE][cC][iI][lL]|[dD][eE][mM][iI][lL][lL][eE]", tweet)
+            r"[bB][eE][sS][tT]|[cC][eE][cC][iI][lL]|[dD][eE][mM][iI][lL][lL][eE]", tweet
+        )
         if matches:
             tweets.append(tweet)
     award_tweets_prelim = [nltk.word_tokenize(tweet) for tweet in tweets]
@@ -501,7 +504,11 @@ def get_awards(year):
             for i in range(begin, len(tweet)):
                 if tweet[i] in invalid_dict:
                     continue
-                if tweet[i][0].isupper() and tweet[i] not in award_word_dict and tweet[i] not in basic_word_dict:
+                if (
+                    tweet[i][0].isupper()
+                    and tweet[i] not in award_word_dict
+                    and tweet[i] not in basic_word_dict
+                ):
                     continue
                 if tweet[i] not in award_word_dict and tweet[i] not in basic_word_dict:
                     is_in_award_dict += 1
@@ -626,20 +633,61 @@ def get_winner(year):
     global award_word_dict
 
     print("Now gathering winner for year: " + str(year) + "\n")
-    
+
     timer = time.time()
     winners = {}
 
-    key_words = ['win', 'wins', 'won']
-    basic_word_dict = ['a', 'an', 'for', 'in', 'by', 'or', '-', ':', ',']
-    ban_words = ['Gold', 'Dan', 'It', '.', '99', 'B', 'M', 'Adele', 'Home', 'Variety', 'Ann', 'Go', 'Z', 'X', 'W', 'A', 'C', 'D', 'E', 'Ben', 'Les', 'Jack', 'Dani', 'Lena', 'Guide', 'Jim', 'H', 'George', 'S', 'e', 'Mis', 'Lawrence', 'Skyfall', ',', 'AM', 'all', 'Waltz', 'Lewis', 's', 'z', 'Carrie']
+    key_words = ["win", "wins", "won"]
+    basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
+    ban_words = [
+        "Gold",
+        "Dan",
+        "It",
+        ".",
+        "99",
+        "B",
+        "M",
+        "Adele",
+        "Home",
+        "Variety",
+        "Ann",
+        "Go",
+        "Z",
+        "X",
+        "W",
+        "A",
+        "C",
+        "D",
+        "E",
+        "Ben",
+        "Les",
+        "Jack",
+        "Dani",
+        "Lena",
+        "Guide",
+        "Jim",
+        "H",
+        "George",
+        "S",
+        "e",
+        "Mis",
+        "Lawrence",
+        "Skyfall",
+        ",",
+        "AM",
+        "all",
+        "Waltz",
+        "Lewis",
+        "s",
+        "z",
+        "Carrie",
+    ]
 
-    f = 'gg'+str(year)+'.json'
+    f = "gg" + str(year) + ".json"
     tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, 100000)]
 
     actor_names = nameDictionary[str(year)]
     movie_names = movieDictionary[str(year - 1)]
-
 
     award_tweets = []
     for tweet in tweets:
@@ -650,16 +698,31 @@ def get_winner(year):
         # There is win keyword present
         if len((set(key_words) & set(tweet))) > 0:
             full_tweet = tweet[0]
-            candidate = ''
-            award = ''
+            candidate = ""
+            award = ""
             for i in range(1, len(tweet)):
-                full_tweet = full_tweet + ' ' + tweet[i]
-                c = tweet[i - 1] + ' ' + tweet[i]
-                if (c in actor_names) and ( i + 1 < len(tweet) and tweet[i + 1] in key_words ) :
+                full_tweet = full_tweet + " " + tweet[i]
+                c = tweet[i - 1] + " " + tweet[i]
+                if (c in actor_names) and (
+                    i + 1 < len(tweet) and tweet[i + 1] in key_words
+                ):
                     candidate = c
             if len(candidate) == 0:
                 for m in movie_names:
-                    if (m in full_tweet) and (m not in ban_words) and (full_tweet[ full_tweet.index(m) + len(m) + 1 : full_tweet.index(m) + len(m) + 5 ] in key_words) :
+                    if (
+                        (m in full_tweet)
+                        and (m not in ban_words)
+                        and (
+                            full_tweet[
+                                full_tweet.index(m)
+                                + len(m)
+                                + 1 : full_tweet.index(m)
+                                + len(m)
+                                + 5
+                            ]
+                            in key_words
+                        )
+                    ):
                         candidate = m
                         break
 
@@ -893,7 +956,7 @@ def output(
 # function that runs all of the code and returns in in a readable way
 def runAllFunctions(year):
     global ALL_TWEETS
-    ALL_TWEETS = getTweets('gg'+year+'.json', 150000)
+    ALL_TWEETS = getTweets("gg" + year + ".json", 150000)
     # can't actually do all tweets bc 2015 has like 1.7 million and that takes too long :)
     # run all of the functions
     get_hosts(year)
