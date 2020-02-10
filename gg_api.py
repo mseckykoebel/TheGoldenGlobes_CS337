@@ -783,7 +783,10 @@ def output(
     type, hosts=[], awards=[], nominees={}, winners={}, presenters={},
 ):
     # default to be official awards from what we gathered
-    officialAwards = AWARDS
+    officialAwards = OFFICIAL_AWARDS_1819
+    # see if it needs to change
+    if (year == "2013") or (year == "2015"):
+        officialAwards = OFFICIAL_AWARDS_1315
 
     output = None
     # if it is human readable or json, do something else
@@ -796,11 +799,14 @@ def output(
             output += host + ", "
         # output
         output = output[:-2] + "\n\n"
+        # award list
+        # generate the output for the awards
+        print("List of Predicted Awards:")
+        for award in awards:
+            output += "Award: " + award + "\n"
         # AWARDS
         for i in range(len(officialAwards)):
             award = officialAwards[i]
-            # generate the output for the awards
-            output += "Award: " + award + "\n"
             # generate the output for the presenters
             output += "Presenters: " + "".join(
                 [(str(pres) + ", ") for pres in presenters[award]]
@@ -834,17 +840,17 @@ def output(
 # function that runs all of the code and returns in in a readable way
 def runAllFunctions(year):
     # run all of the functions
-    get_hosts(year)
-    get_awards(year)
-    get_nominees(year)
-    get_winner(year)
-    get_presenters(year)
+    hosts = get_hosts(year)
+    awards = get_awards(year)
+    nominees = get_nominees(year)
+    winners = get_winner(year)
+    presenters = get_presenters(year)
     # bestDressed = best_dressed(year)
     # worstDressed = worst_dressed(year)
     # output
     print("Generating output and output file...\n")
     # get the right year
-    humanOutput = output("human", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
+    humanOutput = output("human", hosts, awards, nominees, winners, presenters)
     # add this when it is done!!!!! :
     # {"Best Dressed": bestDressed, "Worst Dressed": worstDressed}
     # jsonOutput = output("json", HOSTS, WINNERS)
@@ -853,7 +859,7 @@ def runAllFunctions(year):
     with open("data" + str(year) + ".json", "w") as f:
         json.dump(jsonOutput, f)"""
     # print to the console
-    print(humanOutput)
+    #print(humanOutput)
     return
 
 
