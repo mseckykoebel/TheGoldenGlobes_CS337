@@ -266,7 +266,7 @@ def get_hosts(year):
     """Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns."""
 
-    print("Now getting hosts in year " + year + "\n")
+    print("Getting list of hosts for year: " + year + "\n")
 
     # ------ get json file
     f = "gg" + str(year) + ".json"
@@ -414,7 +414,8 @@ def get_nominees(year):
     the name of this function or what it returns."""
     # Your code here
     global award_word_dict
-
+    # print
+    print("Getting the nominees for year: " + year + "\n")
     nominees = {k: [] for k in OFFICIAL_AWARDS_1315}
     awards_tokenized = [nltk.word_tokenize(
         award) for award in OFFICIAL_AWARDS_1315]
@@ -454,7 +455,8 @@ def get_nominees(year):
             if candidate and award:
                 if candidate not in nominees[award]:
                     nominees[award].append(candidate)
-    print(nominees)
+    # print(nominees)
+    global NOMINEES
     NOMINEES = nominees
     print ("Nominees Gathered! \n")
     return nominees
@@ -466,7 +468,8 @@ def get_winner(year):
     Do NOT change the name of this function or what it returns."""
     # Your code here
     global award_word_dict
-
+    # winners gathered
+    print("Now gathering winner for year: " + year + "\n")
     winners = {}
 
     key_words = ['win', 'wins', 'won']
@@ -573,9 +576,9 @@ def output(
 def runAllFunctions(year):
     # run all of the functions
     get_hosts(year)
-    get_awards(year)
+    # get_awards(year)
     # get_nominees(year)
-    # get_presenters(year)
+    get_presenters(year)
     # get_winner(year)
     # bestDressed = best_dressed(year)
     # worstDressed = worst_dressed(year)
@@ -584,18 +587,15 @@ def runAllFunctions(year):
     humanOutput = output(
         "human",
         HOSTS,
-        AWARDS,
-        NOMINEES,
-        WINNERS,
-        PRESENTERS,
+        PRESENTERS
     )
     # add this when it is done!!!!! :
     #{"Best Dressed": bestDressed, "Worst Dressed": worstDressed}
-    jsonOutput = output("json", HOSTS)
-    """jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)"""
+    jsonOutput = output("json", HOSTS, PRESENTERS)
+    """jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
     # create the json file
     with open("data" + str(year) + ".json", "w") as f:
-        json.dump(jsonOutput, f)
+        json.dump(jsonOutput, f)"""
     # print to the console
     print(humanOutput)
     return
