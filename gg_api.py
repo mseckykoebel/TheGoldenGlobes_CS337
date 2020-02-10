@@ -177,8 +177,36 @@ function_stopwords.extend(
         "RT",
         "hosting",
         "goldenglobes",
-    ]
-)
+        "animated",
+        "film",
+        "zap2it",
+        "always",
+        "good",
+        "series",
+        "goes",
+        "presents",
+        "drama",
+        "needs",
+        "jodie",
+        "foster",
+        "lay",
+        "foreign",
+        "bill",
+        "clinton",
+        "yahoo2movies",
+        "yahoomovies",
+        "introduced",
+        "philstarnews",
+        "lincolnmovie",
+        "nomination",
+        "msntv",
+        "nominee",
+        "lincoln",
+        "maggie",
+        "downtown",
+        "abbey"
+        ]
+    )
 
 
 def pre_ceremony():
@@ -513,10 +541,105 @@ def get_presenters(year):
     names as keys, and each entry a list of strings. Do NOT change the
     name of this function or what it returns."""
     presenters = {}
-    # Your code here
+    
+    # ------ get json file
+    f = "gg" + str(year) + ".json"
+    
+    # ------ get all tweets in a list
+    tweets = getTweets(f, " ")
+    
+    # ------ get award names and populate dictionary
+    if (year == "2013") or (year == "2015"):
+        awards_for_func = OFFICIAL_AWARDS_1315
+    
+    elif (year == "2018") or (year == "2019"):
+        awards_for_func = OFFICIAL_AWARDS_1819
+    
+    for award in awards_for_func:
+        presenters[award] = []
+    
+    # ------ use re.findall to get a list of tweets that may have presenter names
+    match_list = []
+    for tweet in tweets:
+        matches = re.findall(r"[Pp]resent?", tweet) or re.findall(r"[iI]ntroduce?", tweet)
+        if matches != []:
+            match_list.extend([tweet])
+
+    # ------ get a list of key words
+    kw = ["cecil", "drama", "actress", "actor", "comedy", "animated", "film", "foreign", "supporting", "director",
+          "screenplay", "original", "song", "score", "television", "picture", "series", "musical"]
+
+    no_picture = ["foreign", "screenplay", "director"]
+
+    # ------ loop through awards
+    for award in awards_for_func:
+    
+        tokenizer = RegexpTokenizer(r"\w+")
+        tokens = list(tokenizer.tokenize(award))
+        same_words = list(set(tokens).intersection(kw))
+        
+        # ------ make substitutions
+        if ("foreign" or "screenplay" or "director") in same_words and "picture" in same_words:
+            if "picture" in same_words:
+                same_words.remove("picture")
+            
+            if "picture" in same_words:
+                same_words.append("movie")
+
+        if "television" in same_words:
+            same_words.append("tv")
+        
+        # ------ form regular expressions
+        reg_exp = [ ]
+        for word in same_words:
+            if word not in ["picture", "movie", "tv", "television", "series"]:
+                regex = r"[" + word[0].lower() + word[0].upper() + "]" + word[1:] + "?"
+                reg_exp.append(regex)
+
+        # ------ use re.findall to get tweet matches
+        # ------ several if clauses to make substitutions
+        presenter_tweets = [ ]
+
+        for tweet in match_list:
+            if "television" and "picture" in same_words:
+                if all(re.findall(exp, tweet) for exp in reg_exp) and (re.findall(r"[Mm]ovie?", tweet) or re.findall(r"[Pp]icture?", tweet)) and (re.findall(r"[Tt]elevision?", tweet) or re.findall(r"[Tt]v?", tweet) or re.findall(r"[Tt]V?", tweet) or re.findall(r"[Ss]eries?", tweet)):
+                    presenter_tweets.extend([tweet])
+                
+                elif "picture" in same_words:
+                    if all(re.findall(exp, tweet) for exp in reg_exp) and (re.findall(r"[Mm]ovie?", tweet) or re.findall(r"[Pp]icture?", tweet)):
+                        presenter_tweets.extend([tweet])
+                
+                elif "television" or "series" in same_words:
+                    if all(re.findall(exp, tweet) for exp in reg_exp) and (re.findall(r"[Tt]elevision?", tweet) or re.findall(r"[Tt]v?", tweet) or re.findall(r"[Tt]V?", tweet)):
+                        presenter_tweets.extend([tweet])
+            else:
+                if all(re.findall(exp, tweet) for exp in reg_exp):
+                    presenter_tweets.extend([tweet])
+
+        # ------ get names in tweets
+        common_names = [ ]
+        for tweet in presenter_tweets:
+            match = re.findall(r"[A-Z][a-z]+,?\s+(?:[A-Z][a-z]*\.?\s*)?[A-Z][a-z]+", tweet)
+            if match != []:
+                common_names.append(match)
+
+        # ------ remove stopwords
+        new_list = [ ]
+        for name_lst in common_names:
+            for name in name_lst:
+                words = name.split()
+                if all(word.lower() not in function_stopwords for word in words):
+                    new_list.append(name)
+                    
+        counter = Counter(new_list)
+        counter = dict(counter.most_common(2))
+        final_list = list(counter.keys())
+        presenters[award] = final_list
+    
     global PRESENTERS
     PRESENTERS = presenters
     print("Presenters Gathered! \n")
+    print(presenters)
     return presenters
 
 
@@ -712,9 +835,10 @@ def valueExistsInKeyWords(keysList, val):
 
 
 # run these before main
-getTeamMembers()
-pre_ceremony()
-get_nominees('2013')
+#getTeamMembers()
+#pre_ceremony()
+#get_presenters(sys.argv[1])
+#get_nominees('2013')
 # get_awards('2013')
 
 if __name__ == "__main__":
