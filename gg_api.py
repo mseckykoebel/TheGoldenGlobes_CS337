@@ -452,7 +452,6 @@ def get_awards(year):
     # 1. list of words related to awards/helper words
     # starting
     print("Getting list of awards for year: " + year + "\n")
-    award_timer = time.time()
     # 1. list of words related to awards/helper words (maybe too many words? taken from list of awards above)
     award_word_dict = [
         "award",
@@ -522,7 +521,6 @@ def get_awards(year):
     AWARDS = awards
     print(awards)
     print("Awards gathered! \n")
-    print("Total AWARDS runtime: %s seconds" % str(time.time() - award_timer))
     return awards
 
 
