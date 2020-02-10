@@ -180,37 +180,6 @@ award_word_dict = [
 
 # all of the names in the IMDb database are going to go here
 nameDictionary = {}
-award_word_dict = [
-    "actor",
-    "actress",
-    "animated",
-    "award",
-    "best",
-    "cecil",
-    "comedy",
-    "demille",
-    "director",
-    "drama",
-    "feature",
-    "film",
-    "foreign",
-    "language",
-    "made",
-    "mini",
-    "series",
-    "motion",
-    "musical",
-    "original",
-    "performance",
-    "picture",
-    "role",
-    "score",
-    "screenplay",
-    "series",
-    "song",
-    "supporting",
-    "television",
-]
 
 movieDictionary = {}
 
@@ -401,7 +370,8 @@ def pre_ceremony():
     print("Beginning the pre-ceremony process...")
     # TIMER START
     timer = time.time()
-
+    name_json = None
+    movie_json = None
 
     if os.path.exists("./nameDictionary.json") and os.path.exists("./movieDictionary.json"):
         name_json = open("./nameDictionary.json")
@@ -924,7 +894,7 @@ def runAllFunctions(year):
     global ALL_TWEETS
     ALL_TWEETS = getTweets('gg'+year+'.json', " ")
     # run all of the functions
-    # get_hosts(year)
+    get_hosts(year)
     get_awards(year)
     get_nominees(year)
     get_winner(year)
