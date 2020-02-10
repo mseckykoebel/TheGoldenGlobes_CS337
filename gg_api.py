@@ -402,7 +402,6 @@ def pre_ceremony():
     # TIMER START
     timer = time.time()
 
-
     if os.path.exists("./nameDictionary.json") and os.path.exists("./movieDictionary.json"):
         name_json = open("./nameDictionary.json")
         movie_json = open("./movieDictionary.json")
@@ -411,7 +410,6 @@ def pre_ceremony():
 
     nameDictionary = json.load(name_json)
     movieDictionary = json.load(movie_json)
-
 
     # TIMER END
     print("Total runtime: %s seconds" % str(time.time() - timer) + "\n")
@@ -864,15 +862,12 @@ def main():
 
 
 # function that returns human-readbale format for data, as well as json format
-def output(
-    type, hosts=[], awards=[], nominees={}, winners={}, presenters={},
-):
+def output(type, hosts=[], awards={}, nominees={}, winners={}, presenters={}):
     # default to be official awards from what we gathered
     officialAwards = OFFICIAL_AWARDS_1819
     # see if it needs to change
     if (year == "2013") or (year == "2015"):
         officialAwards = OFFICIAL_AWARDS_1315
-
     output = None
     # if it is human readable or json, do something else
     if (type == "human") or (type == "Human"):
@@ -882,31 +877,20 @@ def output(
         # go through and grab the hosts
         for host in hosts:
             output += host + ", "
-        # output
+        # output for the rest - generate and make it human readable
         output = output[:-2] + "\n\n"
-        # award list
-        # generate output for the winners
-        for winner in winners:
-            output += "Winner: " + winners[winner] + "\n\n"
-        # generate the output for the awards
-        print("List of Predicted Awards:")
-        for award in awards:
-            output += "Award: " + award + "\n"
-        # AWARDS
         for i in range(len(officialAwards)):
             award = officialAwards[i]
-            # generate the output for the presenters
-            output += "Presenters: " + "".join(
-                [(str(pres) + ", ") for pres in presenters[award]]
-            )
+            # awards (this should work??)
+            output += "Award: " + award + "\n"
             # skip space
             output = output[:-2] + "\n"
-            # generate the output for the nominees
-            output += "Nominees: " + "".join(
-                [(str(nom) + ", ") for nom in nominees[award]]
-            )
-            # skip space
-            output = output[:-2] + "\n"
+            # generate the output for the presenters (generate a list)
+            output += "Presenters: " + "".join([(str(pres) + ", ") for pres in presenters[award]])
+            # generate the output for the nominees (generate a list)
+            output += "Nominees: " + "".join([(str(nom) + ", ") for nom in nominees[award]])
+            # generate winners
+            output += "Winner: " + winners[award] + "\n\n"
             
         # return the output
         return output
