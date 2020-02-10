@@ -8,6 +8,7 @@ __pycache__
 *.gz
 *.swp
 *.pyc
+test.py
 
 # Distribution / packaging
 .Python
