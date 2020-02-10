@@ -274,7 +274,7 @@ def init_files():
     # define the dictionary of names
 
     global nameDictionary
-    # only take names from a certian time (assuming this is not tested earlier)
+    # only take names from a certain time (assuming this is not tested earlier)
     for year in range(2010, 2020):
         nameDictionary[str(year)] = []
 
@@ -294,7 +294,7 @@ def init_files():
     # define the dictionary of movies
     global movieDictionary
 
-    # only take names from a certian time (assuming this is not tested earlier)
+    # only take names from a certain time (assuming this is not tested earlier)
     for year in range(2010, 2020):
         movieDictionary[str(year)] = []
 
@@ -370,11 +370,8 @@ def pre_ceremony():
     print("Beginning the pre-ceremony process...")
     # TIMER START
     timer = time.time()
-<<<<<<< HEAD
-=======
     name_json = None
     movie_json = None
->>>>>>> f553e86f24b014a320142e990d52e32e96fe26ee
 
     if os.path.exists("./nameDictionary.json") and os.path.exists("./movieDictionary.json"):
         name_json = open("./nameDictionary.json")
@@ -384,6 +381,7 @@ def pre_ceremony():
 
     nameDictionary = json.load(name_json)
     movieDictionary = json.load(movie_json)
+
 
     # TIMER END
     print("Total runtime: %s seconds" % str(time.time() - timer) + "\n")
@@ -521,6 +519,7 @@ def get_awards(year):
     awards = clean(awards)
     global AWARDS
     AWARDS = awards
+    print(awards)
     print("Awards gathered! \n")
     return awards
 
@@ -839,12 +838,12 @@ def main():
 
 
 # function that returns human-readbale format for data, as well as json format
-def output(type, hosts=[], awards={}, nominees={}, winners={}, presenters={}):
+def output(
+    type, hosts=[], awards=[], nominees={}, winners={}, presenters={},
+):
     # default to be official awards from what we gathered
-    officialAwards = OFFICIAL_AWARDS_1819
-    # see if it needs to change
-    if (year == "2013") or (year == "2015"):
-        officialAwards = OFFICIAL_AWARDS_1315
+    officialAwards = AWARDS
+
     output = None
     # if it is human readable or json, do something else
     if (type == "human") or (type == "Human"):
@@ -854,21 +853,27 @@ def output(type, hosts=[], awards={}, nominees={}, winners={}, presenters={}):
         # go through and grab the hosts
         for host in hosts:
             output += host + ", "
-        # output for the rest - generate and make it human readable
+        # output
         output = output[:-2] + "\n\n"
+        # AWARDS
         for i in range(len(officialAwards)):
             award = officialAwards[i]
-            # awards (this should work??)
+            # generate the output for the awards
             output += "Award: " + award + "\n"
+            # generate the output for the presenters
+            output += "Presenters: " + "".join(
+                [(str(pres) + ", ") for pres in presenters[award]]
+            )
             # skip space
             output = output[:-2] + "\n"
-            # generate the output for the presenters (generate a list)
-            output += "Presenters: " + "".join([(str(pres) + ", ") for pres in presenters[award]])
-            # generate the output for the nominees (generate a list)
-            output += "Nominees: " + "".join([(str(nom) + ", ") for nom in nominees[award]])
-            # generate winners
+            # generate the output for the nominees
+            output += "Nominees: " + "".join(
+                [(str(nom) + ", ") for nom in nominees[award]]
+            )
+            # skip space
+            output = output[:-2] + "\n"
+            # generate output for the winners
             output += "Winner: " + winners[award] + "\n\n"
-            
         # return the output
         return output
     # generate the Json output if the request is made
@@ -888,19 +893,20 @@ def output(type, hosts=[], awards={}, nominees={}, winners={}, presenters={}):
 # function that runs all of the code and returns in in a readable way
 def runAllFunctions(year):
     global ALL_TWEETS
-    ALL_TWEETS = getTweets('gg'+year+'.json', " ")
+    ALL_TWEETS = getTweets('gg'+year+'.json', 150000)
+    # can't actually do all tweets bc 2015 has like 1.7 million and that takes too long :)
     # run all of the functions
-    hosts = get_hosts(year)
-    awards = get_awards(year)
-    nominees = get_nominees(year)
-    winners = get_winner(year)
-    presenters = get_presenters(year)
+    get_hosts(year)
+    get_awards(year)
+    get_nominees(year)
+    get_winner(year)
+    get_presenters(year)
     # bestDressed = best_dressed(year)
     # worstDressed = worst_dressed(year)
     # output
     print("Generating output and output file...\n")
     # get the right year
-    humanOutput = output("human", hosts, awards, nominees, winners, presenters)
+    humanOutput = output("human", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
     # add this when it is done!!!!! :
     # {"Best Dressed": bestDressed, "Worst Dressed": worstDressed}
     # jsonOutput = output("json", HOSTS, WINNERS)
