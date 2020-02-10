@@ -23,12 +23,12 @@ from collections import Counter
 # compare hashable sentences
 from difflib import SequenceMatcher
 
-# spacy and the spacy tokenizer
+# spacy, spacy tokenizer (for best and worst dressed)
 import spacy
 from spacy.tokenizer import Tokenizer
-
 spacy.prefer_gpu()
 nlp = spacy.load("en_core_web_sm")
+tokenizer = Tokenizer(nlp.vocab)
 
 # helper functions
 
@@ -93,8 +93,7 @@ OFFICIAL_AWARDS_1819 = [
     "cecil b. demille award",
 ]
 # choosing between the years
-OFFICIAL_AWARDS_FOR_FUNCTION
-
+#OFFICIAL_AWARDS_FOR_FUNCTION
 
 global stopword
 
@@ -104,6 +103,8 @@ AWARDS = {}
 NOMINEES = {}
 WINNERS = {}
 PRESENTERS = {}
+# tweet dictionary
+TWEETS = {}
 
 # Defining program constants
 AWARD_TOKEN_SET = set()
@@ -119,8 +120,6 @@ AWARD_KEYWORDS = [
     "gg2015",
     "gg2020",
 ]
-# tweet dictionary
-TWEETS = {}
 
 # all of the names in the IMDb database are going to go here
 nameDictionary = {}
@@ -253,6 +252,8 @@ def get_hosts(year):
     """Hosts is a list of one or more strings. Do NOT change the name
     of this function or what it returns."""
 
+    print("Now getting hosts in year " + year + "\n")
+
     # ------ get json file
     f = "gg" + str(year) + ".json"
 
@@ -292,6 +293,7 @@ def get_hosts(year):
     # print(hosts)
     global HOSTS
     HOSTS = hosts
+    print("Hosts gathered! \n")
     return hosts
 
 
@@ -334,7 +336,7 @@ def get_awards(year):
     basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
     # 2. get tweets and tokenize them
     f = "gg" + str(year) + ".json"
-    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f)]
+    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, ' ')]
     # 3. look for award names in tweets
     awards = []  # return array
     award_tweets = []
@@ -372,8 +374,10 @@ def get_nominees(year):
     """Nominees is a dictionary with the hard coded award
     names as keys, and each entry a list of strings. Do NOT change
     the name of this function or what it returns."""
-    # Your code here
     nominees = {}
+    # your code here
+    global NOMINEES
+    NOMINEES = nominees
     return nominees
 
 
@@ -381,8 +385,10 @@ def get_winner(year):
     """Winners is a dictionary with the hard coded award
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns."""
-    # Your code here
     winners = {}
+    # Your code here
+    global WINNERS
+    WINNERS = winners
     return winners
 
 
@@ -390,8 +396,10 @@ def get_presenters(year):
     """Presenters is a dictionary with the hard coded award
     names as keys, and each entry a list of strings. Do NOT change the
     name of this function or what it returns."""
-    # Your code here
     presenters = {}
+    # Your code here
+    global PRESENTERS
+    PRESENTERS = presenters
     return presenters
 
 
@@ -412,11 +420,18 @@ def output(
     nominees={},
     winners={},
     presenters={},
-    bestAndWorstDressed=[],
 ):
     # if it is human readable or json, do something else
     if (type == "human") or (type == "Human"):
-        output = ""
+        output = " "
+        # hosts if there is more than one
+        output += "Host" + ("s: " if len(hosts) > 1 else ": ")
+        # go through and grab the hosts
+        for host in hosts:
+            output += host + ", "
+        # output
+        output = output[:-2] + "\n\n"
+        # AWARDS TODO
         return output
     elif (type == "json") or (type == "JSON") or (type == "Json"):
         output = {}
@@ -430,13 +445,14 @@ def output(
 def runAllFunctions(year):
     # run all of the functions
     get_hosts(year)
-    get_awards(year)
-    get_nominees(year)
-    get_presenters(year)
-    get_winner(year)
-    bestDressed = best_dressed(year)
-    worstDressed = worst_dressed(year)
+    # get_awards(year)
+    # get_nominees(year)
+    # get_presenters(year)
+    # get_winner(year)
+    # bestDressed = best_dressed(year)
+    # worstDressed = worst_dressed(year)
     # output
+    print("Generating output and output file...\n")
     humanOutput = output(
         "human",
         HOSTS,
@@ -444,9 +460,11 @@ def runAllFunctions(year):
         NOMINEES,
         WINNERS,
         PRESENTERS,
-        {"Best Dressed": bestDressed, "Worst Dressed": worstDressed},
     )
-    jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
+    # add this when it is done!!!!! :
+    #{"Best Dressed": bestDressed, "Worst Dressed": worstDressed}
+    jsonOutput = output("json", HOSTS)
+    """jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)"""
     # create the json file
     with open("data" + str(year) + ".json", "w") as f:
         json.dump(jsonOutput, f)
@@ -458,7 +476,7 @@ def runAllFunctions(year):
 ### BONUS FUNCTIONS ###
 
 
-def best_dressed(year):
+"""def best_dressed(year):
     # define an array that will hold the right data
     global OFFICIAL_AWARDS_FOR_FUNCTION
     # get the 2013, 2015, 2018, or 2019 data
@@ -472,6 +490,21 @@ def best_dressed(year):
         ValueError("Please use data from 2013, 2015, 2018, or 2019!")
     # tweets array
     global TWEETS
+    stopwords = []
+    """"""stopwords = [
+        "#goldenglobes",
+        "goldenglobes2013",
+        "goldenglobes2015",
+        "goldenglobes2018",
+        "goldenglobes2019",
+        "golden globes",
+        "golden",
+        "globes",
+        "gg2013",
+        "gg2015",
+        "gg2018",
+        "gg2019",
+    ] """"""
     bestDressedKeywords = [
         "alluring",
         "appealing",
@@ -496,14 +529,38 @@ def best_dressed(year):
         "great outfit",
         "best dressed",
     ]
-
-    result = []
     # iterate through all of the tweets and if one of the key words matches, add it to the matching tweets array
-    # for tweet in TWEETS
-    # matchingTweets = []
-    # matchingTweets.append(tweet)
+    for tweet in TWEETS:
+        # add to the matching tweet array of any of the words are the same
+        if any(word in tweet for word in bestDressedKeywords):
+            matchingTweets = []
+            matchingTweets.append(tweet)
 
-    # listOfBestDressed = .....
+    bestDressedNames = commonWords(matchingTweets, "PERSON", year)
+    # new dictionary for work with
+    newDictionary = {}
+    for person in bestDressedNames:
+        # if we use one of the official tweets, we need to discard it
+        if person in stopwords:
+            continue
+        # return if the value exists in the keywords list, and none if it does not
+        k = valueExistsInKeyWords(newDictionary, person)
+        # depending on if the person is in the dictionary
+        if k is None:
+            newDictionary[person] = bestDressedNames[person]
+        else:
+            # they are in so add to the dictionary
+            newDictionary[k] = newDictionary[k] + bestDressedNames[person]
+    # counts the number of elements in the string
+    counter = Counter(bestDressedNames)
+    # if we have more than one person in the array, make an array of the result
+    if (len(counter.most_common(1)) > 0):
+        # store the result
+        result = []
+        result = [person[0] for person in counter.most_common(5) if person]
+    else:
+        ValueError("I suppose nobody was dressed that well :/")
+    # return the list of the best dressed
     return result
 
 
@@ -519,9 +576,22 @@ def worst_dressed(year):
         print("Using OFFICIAL_AWARDS_1819 \n")
     else:
         ValueError("Please use data from 2013, 2015, 2018, or 2019!")
-    # TODO
+    # resulting array and tweets of interest
     result = []
-    return result
+    
+    # scan through all of the tweets
+    return result"""
+
+def commonWords(tweets, type, year):
+    words = {}
+    return words
+
+def valueExistsInKeyWords(keysList, val):
+    for key in keysList:
+        return key 
+    else:
+        # there was no key in the key list
+        return None
 
 
 # run these before main
