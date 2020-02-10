@@ -316,7 +316,8 @@ def get_awards(year):
     of this function or what it returns."""
     # Your code here
     global award_word_dict
-
+    # starting
+    print("Getting list of awards for year: " + year + "\n")
     # 1. list of words related to awards/helper words (maybe too many words? taken from list of awards above)
     award_word_dict = [
         "actor",
@@ -548,21 +549,31 @@ def output(
             output += host + ", "
         # output
         output = output[:-2] + "\n\n"
-        # AWARDS TODO
+        # AWARDS TODO (assuming 13 or 15)
+        for i in range(len(OFFICIAL_AWARDS_1315)):
+            award = OFFICIAL_AWARDS_1315[i]
+            output += "Award: " + award + "\n"
         return output
     elif (type == "json") or (type == "JSON") or (type == "Json"):
-        output = {}
+        jsonOutput = {}
+        jsonOutput["hosts"] = hosts
+        jsonOutput["award_data"] = {}
+        for i in range(len(OFFICIAL_AWARDS_1315)):
+            award = OFFICIAL_AWARDS_1315[i]
+            jsonOutput["award_data"][award] = {
+                "THIS WILL BE FILLED OUT!!!"
+            }
         # return the right output
-        return output
-    else:
-        return None
+        output = jsonOutput
+    
+    return output
 
 
 # function that runs all of the code and returns in in a readable way
 def runAllFunctions(year):
     # run all of the functions
     get_hosts(year)
-    # get_awards(year)
+    get_awards(year)
     # get_nominees(year)
     # get_presenters(year)
     # get_winner(year)
@@ -714,7 +725,7 @@ def valueExistsInKeyWords(keysList, val):
 # run these before main
 getTeamMembers()
 pre_ceremony()
-get_nominees('2013')
+# get_nominees('2013')
 # get_awards('2013')
 
 if __name__ == "__main__":
