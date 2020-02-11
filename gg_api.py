@@ -363,19 +363,17 @@ def pre_ceremony():
     print("Beginning the pre-ceremony process...")
     # TIMER START
     timer = time.time()
-    name_json = None
-    movie_json = None
 
     if os.path.exists("./nameDictionary.json") and os.path.exists(
         "./movieDictionary.json"
     ):
         name_json = open("./nameDictionary.json")
         movie_json = open("./movieDictionary.json")
+        nameDictionary = json.load(name_json)
+        movieDictionary = json.load(movie_json)
     else:
         init_files()
 
-    nameDictionary = json.load(name_json)
-    movieDictionary = json.load(movie_json)
 
     # TIMER END
     print("Total runtime: %s seconds" % str(time.time() - timer) + "\n")
@@ -956,11 +954,7 @@ def output(
 # function that runs all of the code and returns in in a readable way
 def runAllFunctions(year):
     global ALL_TWEETS
-<<<<<<< HEAD
     ALL_TWEETS = getTweets("gg" + year + ".json", 150000)
-=======
-    ALL_TWEETS = getTweets('gg'+year+'.json', 150000)
->>>>>>> 5750cf65e801950b6465286ae996a9875eb8297f
     # can't actually do all tweets bc 2015 has like 1.7 million and that takes too long :)
     # run all of the functions
     get_hosts(year)
