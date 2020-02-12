@@ -7,14 +7,11 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 from collections import Counter
 import nltk
-import numpy
 import json
 import re
-import statistics
 import sys
 import time
 import gzip
-import ssl
 import os
 
 # opens IMDb url
@@ -652,7 +649,7 @@ def get_nominees(year):
                         candidate = c
                         break
 
-       #search for movie
+       # search for movie
         elif award_type == "movie":
             movie = get_movie(tweet, movie_names)
 
@@ -721,6 +718,7 @@ def get_movie(tweet, movie_names):
     movie = ""
     possible_titles = []
     length = len(tweet)
+    movie_score = 5
 
     for i in range(length):
         if tweet[i][0].isupper() and tweet[i].lower() not in exit_words and len(tweet[i]) > 2:
@@ -743,16 +741,17 @@ def get_movie(tweet, movie_names):
             if title in movie_names:
                 movie = title
                 break
-            # for m in sorted(movie_names[title[:2]]):
-
-                # if len(m) > 2:
-                #     if m[2] > title[2]:
-                #         break
-                # #temp_score = SequenceMatcher(None, title, m).quick_ratio()
-                # temp_score = edlib.align(title, m)['editDistance']
-                # if temp_score < movie_score:
-                #     movie_score = temp_score
-                #     movie = m
+    # for title in possible_titles:
+    #     if title[:2] in movie_names:
+    #         for m in sorted(movie_names[title[:2]]):
+    #             if len(m) > 2:
+    #                 if m[2] > title[2]:
+    #                     break
+    #             #temp_score = SequenceMatcher(None, title, m).quick_ratio()
+    #             temp_score = edlib.align(title, m)['editDistance']
+    #             if temp_score < movie_score:
+    #                 movie_score = temp_score
+    #                 movie = m
     return movie
 
 
@@ -1101,6 +1100,7 @@ def output(
 
 # function that runs all of the code and returns in in a readable way
 
+
 def runAllFunctions(year, name):
     global OFFICIAL_AWARDS
     if int(year) < 2018:
@@ -1119,21 +1119,24 @@ def runAllFunctions(year, name):
         get_presenters(year)
         # bestDressed = best_dressed(year)
         # worstDressed = worst_dressed(year)
-        # output
-        print("Generating output and output file...\n")
-        # get the right year
-        humanOutput = output("human", HOSTS, AWARDS,
-                             NOMINEES, WINNERS, PRESENTERS)
-        # add this when it is done!!!!! :
-        # {"Best Dressed": bestDressed, "Worst Dressed": worstDressed}
-        # jsonOutput = output("json", HOSTS, WINNERS)
-        jsonOutput = output("json", HOSTS, AWARDS,
-                            NOMINEES, WINNERS, PRESENTERS)
-        # create the json file
-        with open("data" + str(year) + ".json", "w") as f:
-            json.dump(jsonOutput, f)
-        # print to the console
-        print(humanOutput)
+
+        return
+
+
+def gen_output(year):
+    print("Generating output and output file...\n")
+    # get the right year
+    humanOutput = output("human", HOSTS, AWARDS,
+                         NOMINEES, WINNERS, PRESENTERS)
+    # add this when it is done!!!!! :
+    # {"Best Dressed": bestDressed, "Worst Dressed": worstDressed}
+    jsonOutput = output("json", HOSTS, AWARDS,
+                        NOMINEES, WINNERS, PRESENTERS)
+    # create the json file
+    with open("data" + str(year) + ".json", "w") as f:
+        json.dump(jsonOutput, f)
+    # print to the console
+    print(humanOutput)
     return
 
 
@@ -1222,7 +1225,7 @@ def worst_dressed(year):
     # ...
     return result
 
-print(__name__)
+
 if __name__ in ["__main__", "gg_api"]:
     if len(sys.argv) < 2:
         raise ValueError('Please specify a year!')
@@ -1235,3 +1238,5 @@ if __name__ in ["__main__", "gg_api"]:
     # run the helper functions with the given year
     year = sys.argv[1]
     runAllFunctions(year, __name__)
+    if __name__ == "__main__":
+        gen_output(year)

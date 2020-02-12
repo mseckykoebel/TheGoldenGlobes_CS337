@@ -1,14 +1,13 @@
 # required and not required
 import nltk
-import numpy
 import json
 import re
-import statistics
 import sys
 import time
 import gzip
 import ssl
 import os
+import random
 # opens IMDb url
 import urllib.request
 from collections import Counter
