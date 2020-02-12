@@ -9,6 +9,8 @@ __pycache__
 *.swp
 *.pyc
 test.py
+gg_apifake.py
+!data2013.json
 
 # Distribution / packaging
 .Python
