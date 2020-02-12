@@ -7,6 +7,8 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 from collections import Counter
 from difflib import SequenceMatcher
+from bestAndWorstDressed import best_dressed
+from bestAndWorstDressed import worst_dressed
 import nltk
 import numpy
 import json
@@ -526,7 +528,6 @@ def get_awards(year):
     print(awards)
     print("Awards gathered! \n")
     return awards
-
 
 def clean(awards):
     duplicates = []
