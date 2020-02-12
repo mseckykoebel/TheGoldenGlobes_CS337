@@ -860,7 +860,7 @@ def get_winner(year):
                 full_tweet = full_tweet + " " + tweet[i]
                 c = tweet[i - 1] + " " + tweet[i]
                 if (c in actor_names) and (
-                    i + 1 < len(tweet) and tweet[i + 1] in key_words
+                    i + 2 < len(tweet) and (tweet[i + 1] in key_words or tweet[i + 2] in key_words)
                 ):
                     candidate = c
             if len(candidate) == 0:
@@ -873,7 +873,7 @@ def get_winner(year):
                             "wins" in
                             full_tweet[
                                 full_tweet.index(m)
-                                + len(m):full_tweet.index(m) + len(m) + 10]
+                                + len(m) : full_tweet.index(m) + len(m) + 10]
                         )
                     ):
                         candidate = m
