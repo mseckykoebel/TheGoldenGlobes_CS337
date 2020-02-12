@@ -188,7 +188,7 @@ global stopword
 
 # lists for the return funcion
 HOSTS = {}
-AWARDS = {}
+AWARDS = []
 NOMINEES = {}
 WINNERS = {}
 PRESENTERS = {}
@@ -503,8 +503,8 @@ def get_awards(year):
     of this function or what it returns."""
     # Your code here
     global award_word_dict
-    global ALLTWEETS
-    allTweets = ALLTWEETS
+    global ALL_TWEETS
+    allTweets = ALL_TWEETS
 
     # 1. list of words related to awards/helper words
     # starting
@@ -1123,7 +1123,7 @@ def output(
     type, hosts=[], awards=[], nominees={}, winners={}, presenters={},
 ):
     # default to be official awards from what we gathered
-    officialAwards = AWARDS
+    officialAwards = OFFICIAL_AWARDS
 
     output = None
     # if it is human readable or json, do something else
@@ -1135,8 +1135,10 @@ def output(
         for host in hosts:
             output += host + ", "
         # output
-        output = output[:-2] + "\n\n"
+        output = output[:-2] + "\n\n" + "Parsed Awards \n------------- \n"
         # AWARDS
+        for award in awards:
+            output += award+'\n'
         for i in range(len(officialAwards)):
             award = officialAwards[i]
             # generate the output for the awards
