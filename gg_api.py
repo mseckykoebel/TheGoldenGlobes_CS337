@@ -20,6 +20,7 @@ import os
 
 # opens IMDb url
 import urllib.request
+from collections import Counter
 
 # compare hashable sentences
 from difflib import SequenceMatcher
@@ -372,7 +373,6 @@ def pre_ceremony():
         movieDictionary = json.load(movie_json)
     else:
         init_files()
-
 
     # TIMER END
     print("Total runtime: %s seconds" % str(time.time() - timer) + "\n")
