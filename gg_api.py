@@ -376,7 +376,7 @@ def pre_ceremony():
     global movieDictionary
     global nameDictionary
 
-    print("Beginning the pre-ceremony process...")
+    print("Beginning the pre-ceremony process...\n")
     # TIMER START
     timer = time.time()
 
@@ -783,7 +783,7 @@ def get_winner(year):
     # Your code here
     global award_word_dict
 
-    print("Now gathering winner for year: " + str(year) + "\n")
+    print("Now gathering winners for year: " + str(year) + "\n")
 
     timer = time.time()
     winners = {
@@ -1117,7 +1117,11 @@ def output(
         jsonOutput["award_data"] = {}
         for i in range(len(officialAwards)):
             award = officialAwards[i]
-            jsonOutput["award_data"][award] = {"THIS WILL BE FILLED OUT!!!"}
+            jsonOutput["award_data"][award] = {
+                "presenters": presenters[award],
+                "nominees": nominees[award],
+                "winner": winners[award]
+            }
         # return the right output
         output = jsonOutput
 
@@ -1146,15 +1150,11 @@ def runAllFunctions(year):
     print("Generating output and output file...\n")
     # get the right year
     humanOutput = output("human", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
-    # add this when it is done!!!!! :
-    # {"Best Dressed": bestDressed, "Worst Dressed": worstDressed}
-    # jsonOutput = output("json", HOSTS, WINNERS)
-    """jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
+    # generate the json output file
+    jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
     # create the json file
     with open("data" + str(year) + ".json", "w") as f:
-        json.dump(jsonOutput, f)"""
-    # print to the console
-    print(humanOutput)
+        json.dump(jsonOutput, f)
     return
 
 
@@ -1257,4 +1257,5 @@ if __name__ == "__main__":
     year = sys.argv[1]
     runAllFunctions(year)
     # print the amount of time the program took
+    print("Total program runtime: ")
     print(time.time() - elapsedSeconds)
