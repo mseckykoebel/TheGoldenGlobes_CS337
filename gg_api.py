@@ -637,7 +637,6 @@ def get_nominees(year):
             #     award_score = temp_score
             #     award = a
 
-        # threshold
         if not award:
             continue
 
@@ -653,9 +652,9 @@ def get_nominees(year):
                         candidate = c
                         break
 
-        # search for movie
-        # elif award_type == "movie":
-        #     movie = get_movie(tweet, movie_names)
+       #search for movie
+        elif award_type == "movie":
+            movie = get_movie(tweet, movie_names)
 
         if award_type == "person" and candidate:
             nominees[award].append(candidate)
@@ -1110,7 +1109,7 @@ def runAllFunctions(year, name):
         OFFICIAL_AWARDS = OFFICIAL_AWARDS_1819
     global ALL_TWEETS
     ALL_TWEETS = getTweets("gg" + year + ".json", 100000)
-    if name == "main":
+    if name == "__main__":
         # can't actually do all tweets bc 2015 has like 1.7 million and that takes too long :)
         # run all of the functions
         get_hosts(year)
