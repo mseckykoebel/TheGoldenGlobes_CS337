@@ -373,7 +373,7 @@ def pre_ceremony():
     global movieDictionary
     global nameDictionary
 
-    print("Beginning the pre-ceremony process...")
+    print("Beginning the pre-ceremony process...\n")
     # TIMER START
     timer = time.time()
 
@@ -1109,7 +1109,6 @@ def runAllFunctions(year, name):
     else:
         OFFICIAL_AWARDS = OFFICIAL_AWARDS_1819
     global ALL_TWEETS
-    # ALL_TWEETS = getTweets("gg" + year + ".json", 150000)
     ALL_TWEETS = getTweets("gg" + year + ".json", 100000)
     if name == "main":
         # can't actually do all tweets bc 2015 has like 1.7 million and that takes too long :)
