@@ -38,33 +38,90 @@ tokenizer = Tokenizer(nlp.vocab)
 """Version 0.35"""
 
 # pre-defined award names
+
+
 OFFICIAL_AWARDS_1315 = [
-    'cecil b. demille award',
-    'best motion picture - drama',
-    'best performance by an actress in a motion picture - drama',
-    'best performance by an actor in a motion picture - drama',
-    'best motion picture - comedy or musical',
-    'best performance by an actress in a motion picture - comedy or musical',
-    'best performance by an actor in a motion picture - comedy or musical',
-    'best animated feature film',
-    'best foreign language film',
-    'best performance by an actress in a supporting role in a motion picture',
-    'best performance by an actor in a supporting role in a motion picture',
-    'best director - motion picture',
-    'best screenplay - motion picture',
-    'best original score - motion picture',
-    'best original song - motion picture',
-    'best television series - drama',
-    'best performance by an actress in a television series - drama',
-    'best performance by an actor in a television series - drama',
-    'best television series - comedy or musical',
-    'best performance by an actress in a television series - comedy or musical',
-    'best performance by an actor in a television series - comedy or musical',
-    'best mini-series or motion picture made for television',
-    'best performance by an actress in a mini-series or motion picture made for television',
-    'best performance by an actor in a mini-series or motion picture made for television',
-    'best performance by an actress in a supporting role in a series, mini-series or motion picture made for television',
-    'best performance by an actor in a supporting role in a series, mini-series or motion picture made for television'
+    "cecil b. demille award",
+    "best motion picture - drama",
+    "best performance by an actress in a motion picture - drama",
+    "best performance by an actor in a motion picture - drama",
+    "best motion picture - comedy or musical",
+    "best performance by an actress in a motion picture - comedy or musical",
+    "best performance by an actor in a motion picture - comedy or musical",
+    "best animated feature film",
+    "best foreign language film",
+    "best performance by an actress in a supporting role in a motion picture",
+    "best performance by an actor in a supporting role in a motion picture",
+    "best director - motion picture",
+    "best screenplay - motion picture",
+    "best original score - motion picture",
+    "best original song - motion picture",
+    "best television series - drama",
+    "best performance by an actress in a television series - drama",
+    "best performance by an actor in a television series - drama",
+    "best television series - comedy or musical",
+    "best performance by an actress in a television series - comedy or musical",
+    "best performance by an actor in a television series - comedy or musical",
+    "best mini-series or motion picture made for television",
+    "best performance by an actress in a mini-series or motion picture made for television",
+    "best performance by an actor in a mini-series or motion picture made for television",
+    "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television",
+    "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television",
+]
+
+UNOFFICIAL_AWARDS_1315 = [
+    "cecil b. demille award",
+    "best motion picture - drama",
+    "best performance by an actress in a motion picture - drama",
+    "best performance by an actor in a motion picture - drama",
+    "best motion picture - comedy or musical",
+    "best performance by an actress in a motion picture - comedy or musical",
+    "best performance by an actor in a motion picture - comedy or musical",
+    "best animated feature film",
+    "best actor in a comedy or musical TV series",
+    "best motion picture screenplay",
+    "best foreign language film",
+    "best director",
+    "best screenplay",
+    "best original score",
+    "best supporting actress",
+    "best supporting actor",
+    "best actress in a motion picture , comedy or musical",
+    "best actor in a motion picture , comedy or musical",
+    "best actor in a motion picture , drama",
+    "best actor in a motion picture - drama",
+    "best actress in a motion picture - drama",
+    "best actress in a drama series",
+    "best film in the comedy",
+    "best performance by an actress in a supporting role in a motion picture",
+    "best performance by an actor in a supporting role in a motion picture",
+    "best director - motion picture",
+    "best screenplay - motion picture",
+    "best original score - motion picture",
+    "best original song - motion picture",
+    "best television series - drama",
+    "best animated feature film",
+    "best original song in a motion picture",
+    "best comedy or musical TV series",
+    "best motion picture , comedy or musical",
+    "best performance by an actress in a television series - drama",
+    "best performance by an actor in a television series - drama",
+    "best television series - comedy or musical",
+    "best performance by an actress in a television series - comedy or musical",
+    "best performance by an actor in a television series - comedy or musical",
+    "best mini-series or motion picture made for television",
+    "best performance by an actress in a mini-series or motion picture made for television",
+    "best performance by an actor in a mini-series or motion picture made for television",
+    "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television",
+    "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television",
+    "best actress award in the TV mini-series or motion picture",
+    "Best original score , motion picture",
+    "best actor , TV series or drama",
+    "best actress in a comedy series",
+    "best actress for TV movie role",
+    "Best original score",
+    "best picture , musical or comedy",
+    "best motion picture -- drama",
 ]
 
 OFFICIAL_AWARDS_1819 = [
@@ -91,6 +148,39 @@ OFFICIAL_AWARDS_1819 = [
     'best performance by an actor in a supporting role in a series, limited series or motion picture made for television',
     'cecil b. demille award'
 ]
+
+AWARD_MAP = {
+"best picture , musical or comedy" : "best motion picture - drama",
+"best actress in a drama series" : "best television series - drama",
+"best supporting actress" : "best performance by an actress in a supporting role in a motion picture",
+"best supporting actor" : "best performance by an actor in a supporting role in a motion picture",
+"best actor in a motion picture , comedy or musical" : "best performance by an actor in a motion picture - comedy or musical",
+"best animated feature film" : "best animated feature film",
+"best actor in a comedy or musical TV series" : "best performance by an actor in a television series - comedy or musical",
+"best actress in a comedy or musical TV series" : "best performance by an actress in a television series - comedy or musical",
+"best director" : "best director - motion picture",
+"best screenplay" : "best screenplay - motion picture",
+"best motion picture screenplay" : "best screenplay - motion picture",
+"best comedy or musical TV series" : "best television series - comedy or musical",
+"best picture , musical or comedy" : "best motion picture - comedy or musical",
+"best actress in a TV series drama" : "best performance by an actress in a television series - drama",
+"best actor , TV series or drama" : "best performance by an actor in a television series - drama",
+"best actress in a motion picture , drama" : "best performance by an actress in a motion picture - drama",
+"best actor in a motion picture , drama" : "best performance by an actor in a motion picture - drama",
+"best actress for TV movie role" : "best performance by an actress in a mini-series or motion picture made for television",
+"best actor for TV movie role" : "best performance by an actor in a mini-series or motion picture made for television",
+"best actress award in the TV mini-series or motion picture" : "best mini-series or motion picture made for television",
+"best actress in a comedy series" : "best performance by an actress in a television series - comedy or musical",
+"best original song in a motion picture" : "best original song - motion picture",
+"Best original score , motion picture" : "best original score - motion picture",
+"best actor in a drama" : "best performance by an actor in a motion picture - drama",
+"best actress in a drama" : "best performance by an actress in a motion picture - drama",
+"best foreign language film" : "best foreign language film",
+"best motion picture -- drama" : "best motion picture - drama",
+"cecil b. demille award" : "cecil b. demille award"
+}
+
+
 # choosing between the years
 OFFICIAL_AWARDS = None
 
@@ -102,6 +192,7 @@ AWARDS = {}
 NOMINEES = {}
 WINNERS = {}
 PRESENTERS = {}
+
 # tweet dictionary
 ALLTWEETS = {}
 
@@ -153,11 +244,9 @@ award_word_dict = [
 ]
 
 
-# all of the names in the IMDb database are going to go here
+# all of the names and movie titles are going to go here
 nameDictionary = {}
-
 movieDictionary = {}
-
 
 # all the stopwords can be added here
 global function_stopwords
@@ -272,7 +361,7 @@ def init_files():
     for year in range(2010, 2020):
         movieDictionary[str(year)] = []
 
-    for name in allData_movie[1: len(allData_movie) - 1]:
+    for name in allData_movie[1 : len(allData_movie) - 1]:
         name_name = name[3]  # 1 before is english translation
         year = name[5]
 
@@ -286,7 +375,7 @@ def init_files():
         for year in interested_years:
             movieDictionary[str(year)].append(name_name)
 
-    with open('movieDictionary.json', 'w') as fp:
+    with open("movieDictionary.json", "w") as fp:
         json.dump(movieDictionary, fp)
 
     # iterate through all lines
@@ -321,7 +410,7 @@ def init_files():
         for year in years_active:
             nameDictionary[str(year)].append(name_name)
 
-    with open('nameDictionary.json', 'w') as fp:
+    with open("nameDictionary.json", "w") as fp:
         json.dump(nameDictionary, fp)
 
 
@@ -340,17 +429,17 @@ def pre_ceremony():
     print("Beginning the pre-ceremony process...")
     # TIMER START
     timer = time.time()
-    name_json = None
-    movie_json = None
 
-    if os.path.exists("./nameDictionary.json") and os.path.exists("./movieDictionary.json"):
+    if os.path.exists("./nameDictionary.json") and os.path.exists(
+        "./movieDictionary.json"
+    ):
         name_json = open("./nameDictionary.json")
         movie_json = open("./movieDictionary.json")
+        nameDictionary = json.load(name_json)
+        movieDictionary = json.load(movie_json)
     else:
         init_files()
 
-    nameDictionary = json.load(name_json)
-    movieDictionary = json.load(movie_json)
 
     # TIMER END
     print("Total runtime: %s seconds" % str(time.time() - timer) + "\n")
@@ -414,8 +503,8 @@ def get_awards(year):
     of this function or what it returns."""
     # Your code here
     global award_word_dict
-    global ALL_TWEETS
-    allTweets = ALL_TWEETS
+    global ALLTWEETS
+    allTweets = ALLTWEETS
 
     # 1. list of words related to awards/helper words
     # starting
@@ -441,14 +530,24 @@ def get_awards(year):
         "director",
     ]
     basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
-    invalid_dict = ["loser", "host", "hosts", "hosting",
-                    "opening", "accept", "acceptance", "speech", "nominee"]
+    invalid_dict = [
+        "loser",
+        "host",
+        "hosts",
+        "hosting",
+        "opening",
+        "accept",
+        "acceptance",
+        "speech",
+        "nominee",
+    ]
     # 2. get tweets and tokenize them
     f = "gg" + str(year) + ".json"
     tweets = []
     for tweet in allTweets:
         matches = re.findall(
-            r"[bB][eE][sS][tT]|[cC][eE][cC][iI][lL]|[dD][eE][mM][iI][lL][lL][eE]", tweet)
+            r"[bB][eE][sS][tT]|[cC][eE][cC][iI][lL]|[dD][eE][mM][iI][lL][lL][eE]", tweet
+        )
         if matches:
             tweets.append(tweet)
     award_tweets_prelim = [nltk.word_tokenize(tweet) for tweet in tweets]
@@ -472,7 +571,11 @@ def get_awards(year):
             for i in range(begin, len(tweet)):
                 if tweet[i] in invalid_dict:
                     continue
-                if tweet[i][0].isupper() and tweet[i] not in award_word_dict and tweet[i] not in basic_word_dict:
+                if (
+                    tweet[i][0].isupper()
+                    and tweet[i] not in award_word_dict
+                    and tweet[i] not in basic_word_dict
+                ):
                     continue
                 if tweet[i] not in award_word_dict and tweet[i] not in basic_word_dict:
                     is_in_award_dict += 1
@@ -708,29 +811,87 @@ def get_movie(tweet, movie_names):
                 #     movie = m
     return movie
 
+def freq_award( mp , award ):
+    "Given a award frequency map return the most likely result"
+    candidate = ''
+    max_count = 0 
+    for c in mp[award].keys():
+        if max_count < mp[award][c]:
+            candidate = c
+            max_count = mp[award][c]
+
+    return candidate
 
 def get_winner(year):
     """Winners is a dictionary with the hard coded award
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns."""
+
+
+    year = int(year)
+
     # Your code here
     global award_word_dict
 
-    print("Now gathering winners for year: " + str(year) + "\n")
+    print("Now gathering winner for year: " + str(year) + "\n")
 
     timer = time.time()
-    winners = {}
+    winners = {
+    "cecil b. demille award" : '',
+    "best motion picture - drama" : '',
+    "best performance by an actress in a motion picture - drama" : "",
+    "best performance by an actor in a motion picture - drama" : "",
+    "best motion picture - comedy or musical" : "",
+    "best performance by an actress in a motion picture - comedy or musical" : "",
+    "best performance by an actor in a motion picture - comedy or musical" : "",
+    "best animated feature film" : "",
+    "best foreign language film" : "",
+    "best performance by an actress in a supporting role in a motion picture" : "",
+    "best performance by an actor in a supporting role in a motion picture" : "",
+    "best director - motion picture" : "",
+    "best screenplay - motion picture" : "",
+    "best original score - motion picture" : "",
+    "best original song - motion picture" : "",
+    "best television series - drama" : "",
+    "best performance by an actress in a television series - drama" : "",
+    "best performance by an actor in a television series - drama" : "",
+    "best television series - comedy or musical" : "",
+    "best performance by an actress in a television series - comedy or musical" : "",
+    "best performance by an actor in a television series - comedy or musical" : "",
+    "best mini-series or motion picture made for television" : "",
+    "best performance by an actress in a mini-series or motion picture made for television" : "",
+    "best performance by an actor in a mini-series or motion picture made for television" : "",
+    "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television" : "",
+    "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television" : "",
+    }
 
-    key_words = ['win', 'wins', 'won']
-    basic_word_dict = ['a', 'an', 'for', 'in', 'by', 'or', '-', ':', ',']
-    ban_words = ['Gold', 'Dan', 'It', '.', '99', 'B', 'M', 'Adele', 'Home', 'Variety', 'Ann', 'Go', 'Z', 'X', 'W', 'A', 'C', 'D', 'E', 'Ben', 'Les',
-                 'Jack', 'Dani', 'Lena', 'Guide', 'Jim', 'H', 'George', 'S', 'e', 'Mis', 'Lawrence', 'Skyfall', ',', 'AM', 'all', 'Waltz', 'Lewis', 's', 'z', 'Carrie']
+    key_words = ["win", "wins", "won"]
+    basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
+    ban_words = [
+        "Gold",
+        "Adele",
+        "Home",
+        "Variety",
+        "Jack",
+        "Dani",
+        "Lena",
+        "Guide",
+        "George",
+        "Lawrence",
+        "Waltz",
+        "Lewis",
+        "Carrie",
+        "Michael",
+    ]
 
-    f = 'gg'+str(year)+'.json'
+    f = "gg" + str(year) + ".json"
     tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, 100000)]
 
     actor_names = nameDictionary[str(year)]
     movie_names = movieDictionary[str(year - 1)]
+
+
+    freq_map = {} # Keeps track of the frequency of the award titles to make the assignment more accurate
 
     award_tweets = []
     for tweet in tweets:
@@ -741,26 +902,54 @@ def get_winner(year):
         # There is win keyword present
         if len((set(key_words) & set(tweet))) > 0:
             full_tweet = tweet[0]
-            candidate = ''
-            award = ''
+            candidate = ""
+            award = ""
             for i in range(1, len(tweet)):
-                full_tweet = full_tweet + ' ' + tweet[i]
-                c = tweet[i - 1] + ' ' + tweet[i]
-                if (c in actor_names) and (i + 1 < len(tweet) and tweet[i + 1] in key_words):
+                full_tweet = full_tweet + " " + tweet[i]
+                c = tweet[i - 1] + " " + tweet[i]
+                if (c in actor_names) and (
+                    i + 1 < len(tweet) and tweet[i + 1] in key_words
+                ):
                     candidate = c
             if len(candidate) == 0:
                 for m in movie_names:
-                    if (m in full_tweet) and (m not in ban_words) and (full_tweet[full_tweet.index(m) + len(m) + 1: full_tweet.index(m) + len(m) + 5] in key_words):
+                    if (
+                        (len(m) > 3)
+                        and (m in full_tweet)
+                        and (m not in ban_words)
+                        and (
+                            "wins" in
+                            full_tweet[
+                                full_tweet.index(m)
+                                + len(m):full_tweet.index(m) + len(m) + 10]
+                        )
+                    ):
                         candidate = m
                         break
 
-            for a in OFFICIAL_AWARDS_1315:
+            for a in UNOFFICIAL_AWARDS_1315:
                 if a in full_tweet:
                     award = a
                     break
 
+
+            if award in AWARD_MAP.keys():
+                award = AWARD_MAP[award]
+            else:
+                continue
+
             if len(candidate) > 0 and len(award) > 0:
-                winners[award] = candidate
+                if award not in freq_map.keys():
+                    freq_map[award] = { candidate : 1 }
+                else:
+                    if candidate not in freq_map[award]:
+                        freq_map[award][candidate] = 1
+                    else:
+                        freq_map[award][candidate] += 1
+
+                if award in winners.keys():
+                    winners[award] = freq_award( freq_map , award )
+
 
     global WINNERS
     WINNERS = winners
@@ -990,7 +1179,7 @@ def runAllFunctions(year):
     else:
         OFFICIAL_AWARDS = OFFICIAL_AWARDS_1819
     global ALL_TWEETS
-    ALL_TWEETS = getTweets('gg'+year+'.json', 150000)
+    ALL_TWEETS = getTweets("gg" + year + ".json", 150000)
     # can't actually do all tweets bc 2015 has like 1.7 million and that takes too long :)
     # run all of the functions
     get_hosts(year)
