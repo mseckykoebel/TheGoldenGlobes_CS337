@@ -836,7 +836,6 @@ def get_winner(year):
     global WINNERS
     WINNERS = winners
     print("Winners Gathered! \n")
-    print( winners )
     print("Total runtime: %s seconds" % str(time.time() - timer))
     return winners
 
