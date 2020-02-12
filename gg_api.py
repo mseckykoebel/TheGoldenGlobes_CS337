@@ -125,9 +125,7 @@ AWARD_MAP = {
 }
 
 # choosing between the years
-OFFICIAL_AWARDS = None
-
-global stopword
+OFFICIAL_AWARDS = []
 
 # lists for the return funcion
 HOSTS = {}
@@ -137,8 +135,7 @@ WINNERS = {}
 PRESENTERS = {}
 
 # tweet dictionary
-ALLTWEETS = {}
-
+ALL_TWEETS = []
 # Defining program constants
 AWARD_TOKEN_SET = set()
 # possible keywords for the ceremony itself
@@ -444,7 +441,6 @@ def get_awards(year):
     # Your code here
     global award_word_dict
     global ALL_TWEETS
-    allTweets = ALL_TWEETS
 
     # 1. list of words related to awards/helper words
     # starting
@@ -484,7 +480,7 @@ def get_awards(year):
     # 2. get tweets and tokenize them
     f = "gg" + str(year) + ".json"
     tweets = []
-    for tweet in allTweets:
+    for tweet in ALL_TWEETS:
         matches = re.findall(
             r"[bB][eE][sS][tT]|[cC][eE][cC][iI][lL]|[dD][eE][mM][iI][lL][lL][eE]", tweet
         )
@@ -572,7 +568,7 @@ def get_nominees(year):
     the name of this function or what it returns."""
     # Your code here
     global ALL_TWEETS
-    allTweets = ALL_TWEETS
+    global OFFICIAL_AWARDS
 
     print("Getting the nominees for year: " + year + "\n")
     nominees = {k: [] for k in OFFICIAL_AWARDS}
@@ -604,7 +600,7 @@ def get_nominees(year):
             movie_names[beginning] = [movie]
 
     tweets = []
-    for tweet in allTweets:
+    for tweet in ALL_TWEETS:
         matches = re.findall(
             r"[nN][oO][mM]|[wW][iI][nN]|[wW][oO][nN]|[aA][wW][aA][rR]", tweet
         )
@@ -632,7 +628,6 @@ def get_nominees(year):
             #     award_score = temp_score
             #     award = a
 
-        # threshold
         if not award:
             continue
 
@@ -649,8 +644,8 @@ def get_nominees(year):
                         break
 
         # search for movie
-        # elif award_type == "movie":
-        #     movie = get_movie(tweet, movie_names)
+        elif award_type == "movie":
+            movie = get_movie(tweet, movie_names)
 
         if award_type == "person" and candidate:
             nominees[award].append(candidate)
@@ -777,38 +772,12 @@ def get_winner(year):
 
     # Your code here
     global award_word_dict
+    global OFFICIAL_AWARDS
 
     print("Now gathering winners for year: " + str(year) + "\n")
 
     timer = time.time()
-    winners = {
-        "cecil b. demille award": "",
-        "best motion picture - drama": "",
-        "best performance by an actress in a motion picture - drama": "",
-        "best performance by an actor in a motion picture - drama": "",
-        "best motion picture - comedy or musical": "",
-        "best performance by an actress in a motion picture - comedy or musical": "",
-        "best performance by an actor in a motion picture - comedy or musical": "",
-        "best animated feature film": "",
-        "best foreign language film": "",
-        "best performance by an actress in a supporting role in a motion picture": "",
-        "best performance by an actor in a supporting role in a motion picture": "",
-        "best director - motion picture": "",
-        "best screenplay - motion picture": "",
-        "best original score - motion picture": "",
-        "best original song - motion picture": "",
-        "best television series - drama": "",
-        "best performance by an actress in a television series - drama": "",
-        "best performance by an actor in a television series - drama": "",
-        "best television series - comedy or musical": "",
-        "best performance by an actress in a television series - comedy or musical": "",
-        "best performance by an actor in a television series - comedy or musical": "",
-        "best mini-series or motion picture made for television": "",
-        "best performance by an actress in a mini-series or motion picture made for television": "",
-        "best performance by an actor in a mini-series or motion picture made for television": "",
-        "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television": "",
-        "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television": "",
-    }
+    winners = {a: "" for a in OFFICIAL_AWARDS}
 
     key_words = ["win", "wins", "won"]
     basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
@@ -830,7 +799,8 @@ def get_winner(year):
     ]
 
     f = "gg" + str(year) + ".json"
-    tweets = [nltk.word_tokenize(tweet) for tweet in getTweets(f, 100000)]
+    global ALL_TWEETS
+    tweets = [nltk.word_tokenize(tweet) for tweet in ALL_TWEETS]
 
     actor_names = nameDictionary[str(year)]
     movie_names = movieDictionary[str(year - 1)]
@@ -912,23 +882,26 @@ def get_presenters(year):
     """Presenters is a dictionary with the hard coded award
     names as keys, and each entry a list of strings. Do NOT change the
     name of this function or what it returns."""
-    presenters = {}
+    global OFFICIAL_AWARDS
+    presenters = {a: [] for a in OFFICIAL_AWARDS}
+    awards_for_func = OFFICIAL_AWARDS
     print("Getting list of presenters for year: " + year + "\n")
     # ------ get json file
     f = "gg" + str(year) + ".json"
 
     # ------ get all tweets in a list
+    global ALL_TWEETS
     tweets = getTweets(f, " ")
 
     # ------ get award names and populate dictionary
-    if (year == "2013") or (year == "2015"):
-        awards_for_func = OFFICIAL_AWARDS_1315
+    # if (year == "2013") or (year == "2015"):
+    #     awards_for_func = OFFICIAL_AWARDS_1315
 
-    elif (year == "2018") or (year == "2019"):
-        awards_for_func = OFFICIAL_AWARDS_1819
+    # elif (year == "2018") or (year == "2019"):
+    #     awards_for_func = OFFICIAL_AWARDS_1819
 
-    for award in awards_for_func:
-        presenters[award] = []
+    # for award in awards_for_func:
+    #     presenters[award] = []
 
     # ------ use re.findall to get a list of tweets that may have presenter names
     match_list = []
@@ -1067,16 +1040,18 @@ def main():
     return
 
 
-# function that returns human-readbale format for data, as well as json format
+# function that returns human-readable format for data, as well as json format
 def output(
-    type, hosts=[], awards=[], nominees={}, winners={}, presenters={},
+    out_type, hosts=[], awards=[], nominees={}, winners={}, presenters={},
 ):
+    global OFFICIAL_AWARDS
+    out_type = out_type.lower()
     # default to be official awards from what we gathered
     officialAwards = OFFICIAL_AWARDS
 
     output = None
     # if it is human readable or json, do something else
-    if (type == "human") or (type == "Human"):
+    if out_type == "human":
         output = ""
         # hosts if there is more than one
         output += "Host" + ("s: " if len(hosts) > 1 else ": ")
@@ -1084,10 +1059,11 @@ def output(
         for host in hosts:
             output += host + ", "
         # output
-        output = output[:-2] + "\n\n" + "Parsed Awards \n------------- \n"
+        output = output[:-2] + "\n\n" + "Parsed Award Names \n------------- \n"
         # AWARDS
         for award in awards:
             output += award + "\n"
+        output += "\n\n" + "Awards \n------------- \n"
         for i in range(len(officialAwards)):
             award = officialAwards[i]
             # generate the output for the awards
@@ -1106,20 +1082,16 @@ def output(
             output = output[:-2] + "\n"
             # generate output for the winners
             output += "Winner: " + winners[award] + "\n\n"
-        # return the output
-        return output
+
     # generate the Json output if the request is made
-    elif (type == "json") or (type == "JSON") or (type == "Json"):
+    elif out_type == "json":
         jsonOutput = {}
         jsonOutput["hosts"] = hosts
-        jsonOutput["award_data"] = {}
-        for i in range(len(officialAwards)):
-            award = officialAwards[i]
-            jsonOutput["award_data"][award] = {
-                "presenters": presenters[award],
-                "nominees": nominees[award],
-                "winner": winners[award],
-            }
+        jsonOutput["award_data"] = {a: {} for a in OFFICIAL_AWARDS}
+        for award in jsonOutput["award_data"]:
+            jsonOutput["award_data"][award]["nominees"] = nominees[award]
+            jsonOutput["award_data"][award]["presenters"] = presenters[award]
+            jsonOutput["award_data"][award]["winner"] = winners[award]
         # return the right output
         output = jsonOutput
 
@@ -1127,33 +1099,39 @@ def output(
 
 
 # function that runs all of the code and returns in in a readable way
-def runAllFunctions(year):
+
+
+def runAllFunctions(year, name):
     global OFFICIAL_AWARDS
     if int(year) < 2018:
         OFFICIAL_AWARDS = OFFICIAL_AWARDS_1315
     else:
         OFFICIAL_AWARDS = OFFICIAL_AWARDS_1819
     global ALL_TWEETS
-    ALL_TWEETS = getTweets("gg" + year + ".json", 150000)
-    # can't actually do all tweets bc 2015 has like 1.7 million and that takes too long :)
-    # run all of the functions
-    get_hosts(year)
-    get_awards(year)
-    get_nominees(year)
-    get_winner(year)
-    get_presenters(year)
-    # bestDressed = best_dressed(year)
-    # worstDressed = worst_dressed(year)
-    # output
-    print("Generating output and output file...\n")
-    # get the right year
-    humanOutput = output("human", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
-    # generate the json output file
-    jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
-    # create the json file
-    with open("data" + str(year) + ".json", "w") as f:
-        json.dump(jsonOutput, f)
-    print(humanOutput)
+    ALL_TWEETS = getTweets("gg" + year + ".json", 100000)
+    if name == "__main__":
+        # can't actually do all tweets bc 2015 has like 1.7 million and that takes too long :)
+        # run all of the functions
+        get_hosts(year)
+        get_awards(year)
+        get_nominees(year)
+        get_winner(year)
+        get_presenters(year)
+        # bestDressed = best_dressed(year)
+        # worstDressed = worst_dressed(year)
+        # output
+        print("Generating output and output file...\n")
+        # get the right year
+        humanOutput = output("human", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
+        # add this when it is done!!!!! :
+        # {"Best Dressed": bestDressed, "Worst Dressed": worstDressed}
+        # jsonOutput = output("json", HOSTS, WINNERS)
+        jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
+        # create the json file
+        with open("data" + str(year) + ".json", "w") as f:
+            json.dump(jsonOutput, f)
+        # print to the console
+        print(humanOutput)
     return
 
 
@@ -1168,7 +1146,7 @@ def best_dressed(year):
     else:
         OFFICIAL_AWARDS = OFFICIAL_AWARDS_1819
     # tweets array
-    global ALLTWEETS
+    global ALL_TWEETS
     # print
     print("Gathering the list of best dressed attendees for year: " + year + "\n")
     stopwords = [
@@ -1211,7 +1189,7 @@ def best_dressed(year):
     ]
     # iterate through all of the tweets and if one of the key words matches, add it to the matching tweets array
     matchingTweets = []
-    for tweet in ALLTWEETS:
+    for tweet in ALL_TWEETS:
         # add to the matching tweet array of any of the words are the same
         if any(word in tweet for word in bestDressedKeywords):
             matchingTweets.append(tweet)
@@ -1243,18 +1221,16 @@ def worst_dressed(year):
     return result
 
 
-# run these before main
-getTeamMembers()
-pre_ceremony()
-
-if __name__ == "__main__":
+print(__name__)
+if __name__ in ["__main__", "gg_api"]:
+    if len(sys.argv) < 2:
+        raise ValueError("Please specify a year!")
+    getTeamMembers()
+    pre_ceremony()
     # elapsedSeconds = seconds since 0
     elapsedSeconds = time.time()
     # run the function
     main()
     # run the helper functions with the given year
     year = sys.argv[1]
-    runAllFunctions(year)
-    # print the amount of time the program took
-    print("Total program runtime: ")
-    print(time.time() - elapsedSeconds)
+    runAllFunctions(year, __name__)
