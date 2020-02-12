@@ -39,7 +39,38 @@ tokenizer = Tokenizer(nlp.vocab)
 """Version 0.35"""
 
 # pre-defined award names
+
+
 OFFICIAL_AWARDS_1315 = [
+    "cecil b. demille award",
+    "best motion picture - drama",
+    "best performance by an actress in a motion picture - drama",
+    "best performance by an actor in a motion picture - drama",
+    "best motion picture - comedy or musical",
+    "best performance by an actress in a motion picture - comedy or musical",
+    "best performance by an actor in a motion picture - comedy or musical",
+    "best animated feature film",
+    "best foreign language film",
+    "best performance by an actress in a supporting role in a motion picture",
+    "best performance by an actor in a supporting role in a motion picture",
+    "best director - motion picture",
+    "best screenplay - motion picture",
+    "best original score - motion picture",
+    "best original song - motion picture",
+    "best television series - drama",
+    "best performance by an actress in a television series - drama",
+    "best performance by an actor in a television series - drama",
+    "best television series - comedy or musical",
+    "best performance by an actress in a television series - comedy or musical",
+    "best performance by an actor in a television series - comedy or musical",
+    "best mini-series or motion picture made for television",
+    "best performance by an actress in a mini-series or motion picture made for television",
+    "best performance by an actor in a mini-series or motion picture made for television",
+    "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television",
+    "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television",
+]
+
+UNOFFICIAL_AWARDS_1315 = [
     "cecil b. demille award",
     "best motion picture - drama",
     "best performance by an actress in a motion picture - drama",
@@ -61,10 +92,6 @@ OFFICIAL_AWARDS_1315 = [
     "best actor in a motion picture , drama",
     "best actor in a motion picture - drama",
     "best actress in a motion picture - drama",
-    "best actress in a motion picture",
-    "best actress in a TV series",
-    "best performance",
-    "best actor in a TV series",
     "best actress in a drama series",
     "best film in the comedy",
     "best performance by an actress in a supporting role in a motion picture",
@@ -75,6 +102,7 @@ OFFICIAL_AWARDS_1315 = [
     "best original song - motion picture",
     "best television series - drama",
     "best animated feature film",
+    "best original song in a motion picture",
     "best comedy or musical TV series",
     "best motion picture , comedy or musical",
     "best performance by an actress in a television series - drama",
@@ -87,7 +115,16 @@ OFFICIAL_AWARDS_1315 = [
     "best performance by an actor in a mini-series or motion picture made for television",
     "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television",
     "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television",
+    "best actress award in the TV mini-series or motion picture",
+    "Best original score , motion picture",
+    "best actor , TV series or drama",
+    "best actress in a comedy series",
+    "best actress for TV movie role",
+    "Best original score",
+    "best picture , musical or comedy",
+    "best motion picture -- drama",
 ]
+
 OFFICIAL_AWARDS_1819 = [
     "best motion picture - drama",
     "best motion picture - musical or comedy",
@@ -116,6 +153,38 @@ OFFICIAL_AWARDS_1819 = [
     "best performance by an actor in a supporting role in a series, limited series or motion picture made for television",
     "cecil b. demille award",
 ]
+
+AWARD_MAP = {
+"best picture , musical or comedy" : "best motion picture - drama",
+"best actress in a drama series" : "best television series - drama",
+"best supporting actress" : "best performance by an actress in a supporting role in a motion picture",
+"best supporting actor" : "best performance by an actor in a supporting role in a motion picture",
+"best actor in a motion picture , comedy or musical" : "best performance by an actor in a motion picture - comedy or musical",
+"best animated feature film" : "best animated feature film",
+"best actor in a comedy or musical TV series" : "best performance by an actor in a television series - comedy or musical",
+"best actress in a comedy or musical TV series" : "best performance by an actress in a television series - comedy or musical",
+"best director" : "best director - motion picture",
+"best screenplay" : "best screenplay - motion picture",
+"best motion picture screenplay" : "best screenplay - motion picture",
+"best comedy or musical TV series" : "best television series - comedy or musical",
+"best picture , musical or comedy" : "best motion picture - comedy or musical",
+"best actress in a TV series drama" : "best performance by an actress in a television series - drama",
+"best actor , TV series or drama" : "best performance by an actor in a television series - drama",
+"best actress in a motion picture , drama" : "best performance by an actress in a motion picture - drama",
+"best actor in a motion picture , drama" : "best performance by an actor in a motion picture - drama",
+"best actress for TV movie role" : "best performance by an actress in a mini-series or motion picture made for television",
+"best actor for TV movie role" : "best performance by an actor in a mini-series or motion picture made for television",
+"best actress award in the TV mini-series or motion picture" : "best mini-series or motion picture made for television",
+"best actress in a comedy series" : "best performance by an actress in a television series - comedy or musical",
+"best original song in a motion picture" : "best original song - motion picture",
+"Best original score , motion picture" : "best original score - motion picture",
+"best actor in a drama" : "best performance by an actor in a motion picture - drama",
+"best actress in a drama" : "best performance by an actress in a motion picture - drama",
+"best foreign language film" : "best foreign language",
+"best motion picture -- drama" : "best motion picture - drama",
+}
+
+
 # choosing between the years
 OFFICIAL_AWARDS = None
 
@@ -622,6 +691,16 @@ def get_nominees(year):
     print("Nominees Gathered! \n")
     return nominees
 
+def freq_award( mp , award ):
+    "Given a award frequency map return the most likely result"
+    candidate = ''
+    max_count = 0 
+    for c in mp[award].keys():
+        if max_count < mp[award][c]:
+            candidate = c
+            max_count = mp[award][c]
+
+    return candidate
 
 def get_winner(year):
     """Winners is a dictionary with the hard coded award
@@ -639,46 +718,19 @@ def get_winner(year):
     basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
     ban_words = [
         "Gold",
-        "Dan",
-        "It",
-        ".",
-        "99",
-        "B",
-        "M",
         "Adele",
         "Home",
         "Variety",
-        "Ann",
-        "Go",
-        "Z",
-        "X",
-        "W",
-        "A",
-        "C",
-        "D",
-        "E",
-        "Ben",
-        "Les",
         "Jack",
         "Dani",
         "Lena",
         "Guide",
-        "Jim",
-        "H",
         "George",
-        "S",
-        "e",
-        "Mis",
         "Lawrence",
-        "Skyfall",
-        ",",
-        "AM",
-        "all",
         "Waltz",
         "Lewis",
-        "s",
-        "z",
         "Carrie",
+        "Michael",
     ]
 
     f = "gg" + str(year) + ".json"
@@ -686,6 +738,9 @@ def get_winner(year):
 
     actor_names = nameDictionary[str(year)]
     movie_names = movieDictionary[str(year - 1)]
+
+
+    freq_map = {} # Keeps track of the frequency of the award titles to make the assignment more accurate
 
     award_tweets = []
     for tweet in tweets:
@@ -708,29 +763,41 @@ def get_winner(year):
             if len(candidate) == 0:
                 for m in movie_names:
                     if (
-                        (m in full_tweet)
+                        (len(m) > 3)
+                        and (m in full_tweet)
                         and (m not in ban_words)
                         and (
+                            "wins" in
                             full_tweet[
                                 full_tweet.index(m)
-                                + len(m)
-                                + 1 : full_tweet.index(m)
-                                + len(m)
-                                + 5
-                            ]
-                            in key_words
+                                + len(m):full_tweet.index(m) + len(m) + 10]
                         )
                     ):
                         candidate = m
                         break
 
-            for a in OFFICIAL_AWARDS_1315:
+            for a in UNOFFICIAL_AWARDS_1315:
                 if a in full_tweet:
                     award = a
                     break
 
+
+            if award in AWARD_MAP.keys():
+                award = AWARD_MAP[award]
+            else:
+                continue
+
             if len(candidate) > 0 and len(award) > 0:
-                winners[award] = candidate
+                if award not in freq_map.keys():
+                    freq_map[award] = { candidate : 1 }
+                else:
+                    if candidate not in freq_map[award]:
+                        freq_map[award][candidate] = 1
+                    else:
+                        freq_map[award][candidate] += 1
+
+                winners[award] = freq_award( freq_map , award )
+
 
     global WINNERS
     WINNERS = winners
