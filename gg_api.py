@@ -1200,7 +1200,6 @@ def best_dressed(year):
     # ...
     return result
 
-
 def worst_dressed(year):
     # define an array that will hold the right data
     global OFFICIAL_AWARDS
