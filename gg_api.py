@@ -196,6 +196,7 @@ AWARDS = {}
 NOMINEES = {}
 WINNERS = {}
 PRESENTERS = {}
+
 # tweet dictionary
 ALLTWEETS = {}
 
@@ -506,8 +507,8 @@ def get_awards(year):
     of this function or what it returns."""
     # Your code here
     global award_word_dict
-    global ALL_TWEETS
-    allTweets = ALL_TWEETS
+    global ALLTWEETS
+    allTweets = ALLTWEETS
 
     # 1. list of words related to awards/helper words
     # starting
@@ -706,6 +707,10 @@ def get_winner(year):
     """Winners is a dictionary with the hard coded award
     names as keys, and each entry containing a single string.
     Do NOT change the name of this function or what it returns."""
+
+
+    year = int(year)
+
     # Your code here
     global award_word_dict
 
