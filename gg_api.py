@@ -21,16 +21,7 @@ from collections import Counter
 # compare hashable sentences
 from difflib import SequenceMatcher
 
-# spacy, spacy tokenizer (for best and worst dressed)
-import spacy
-from spacy.tokenizer import Tokenizer
-
-spacy.prefer_gpu()
-nlp = spacy.load("en_core_web_sm")
-tokenizer = Tokenizer(nlp.vocab)
-
 # helper functions
-
 
 """Version 0.35"""
 
@@ -66,30 +57,33 @@ OFFICIAL_AWARDS_1315 = [
     "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television",
 ]
 
-
 OFFICIAL_AWARDS_1819 = [
-    'best motion picture - drama',
-    'best motion picture - musical or comedy',
-    'best performance by an actress in a motion picture - drama',
-    'best performance by an actor in a motion picture - drama',
-    'best performance by an actress in a motion picture - musical or comedy',
-    'best performance by an actor in a motion picture - musical or comedy',
-    'best performance by an actress in a supporting role in any motion picture',
-    'best performance by an actor in a supporting role in any motion picture',
-    'best director - motion picture', 'best screenplay - motion picture',
-    'best motion picture - animated', 'best motion picture - foreign language',
-    'best original score - motion picture', 'best original song - motion picture',
-    'best television series - drama', 'best television series - musical or comedy',
-    'best television limited series or motion picture made for television',
-    'best performance by an actress in a limited series or a motion picture made for television',
-    'best performance by an actor in a limited series or a motion picture made for television',
-    'best performance by an actress in a television series - drama',
-    'best performance by an actor in a television series - drama',
-    'best performance by an actress in a television series - musical or comedy',
-    'best performance by an actor in a television series - musical or comedy',
-    'best performance by an actress in a supporting role in a series, limited series or motion picture made for television',
-    'best performance by an actor in a supporting role in a series, limited series or motion picture made for television',
-    'cecil b. demille award'
+    "best motion picture - drama",
+    "best motion picture - musical or comedy",
+    "best performance by an actress in a motion picture - drama",
+    "best performance by an actor in a motion picture - drama",
+    "best performance by an actress in a motion picture - musical or comedy",
+    "best performance by an actor in a motion picture - musical or comedy",
+    "best performance by an actress in a supporting role in any motion picture",
+    "best performance by an actor in a supporting role in any motion picture",
+    "best director - motion picture",
+    "best screenplay - motion picture",
+    "best motion picture - animated",
+    "best motion picture - foreign language",
+    "best original score - motion picture",
+    "best original song - motion picture",
+    "best television series - drama",
+    "best television series - musical or comedy",
+    "best television limited series or motion picture made for television",
+    "best performance by an actress in a limited series or a motion picture made for television",
+    "best performance by an actor in a limited series or a motion picture made for television",
+    "best performance by an actress in a television series - drama",
+    "best performance by an actor in a television series - drama",
+    "best performance by an actress in a television series - musical or comedy",
+    "best performance by an actor in a television series - musical or comedy",
+    "best performance by an actress in a supporting role in a series, limited series or motion picture made for television",
+    "best performance by an actor in a supporting role in a series, limited series or motion picture made for television",
+    "cecil b. demille award",
 ]
 
 AWARD_MAP = {
@@ -126,7 +120,6 @@ AWARD_MAP = {
     "best supporting actor , motion picture": "best performance by an actor in a supporting role in a motion picture",
     "Best original score": "best original score - motion picture",
 }
-
 
 # choosing between the years
 OFFICIAL_AWARDS = []
@@ -305,7 +298,7 @@ def init_files():
     for year in range(2010, 2020):
         movieDictionary[str(year)] = []
 
-    for name in allData_movie[1: len(allData_movie) - 1]:
+    for name in allData_movie[1 : len(allData_movie) - 1]:
         name_name = name[3]  # 1 before is english translation
         year = name[5]
 
@@ -323,7 +316,7 @@ def init_files():
         json.dump(movieDictionary, fp)
 
     # iterate through all lines
-    for name in allData[1: len(allData) - 1]:
+    for name in allData[1 : len(allData) - 1]:
         # get the name, birth date, and death date
         name_name = name[1]
         name_birth = name[2]
@@ -386,8 +379,6 @@ def pre_ceremony():
 
     # TIMER END
     print("Total runtime: %s seconds" % str(time.time() - timer) + "\n")
-
-    print("\n")
 
     return
 
@@ -578,7 +569,7 @@ def get_nominees(year):
 
     print("Getting the nominees for year: " + year + "\n")
     nominees = {k: [] for k in OFFICIAL_AWARDS}
-    person_award_criteria = ['act', 'direct', 'score', 'song', 'cecil', 'role']
+    person_award_criteria = ["act", "direct", "score", "song", "cecil", "role"]
     award_dict = {a: [nltk.word_tokenize(a)] for a in OFFICIAL_AWARDS}
     for award in award_dict:
         if any(el in award for el in person_award_criteria):
@@ -586,10 +577,10 @@ def get_nominees(year):
         else:
             award_dict[award].append("movie")
 
-    actor_names_temp = [name.lower()
-                        for name in nameDictionary[str(int(year) - 1)]]
-    movie_names_temp = [name.lower()
-                        for name in set(movieDictionary[str(int(year) - 1)])]
+    actor_names_temp = [name.lower() for name in nameDictionary[str(int(year) - 1)]]
+    movie_names_temp = [
+        name.lower() for name in set(movieDictionary[str(int(year) - 1)])
+    ]
     actor_names = {}
     movie_names = {}
     for name in actor_names_temp:
@@ -608,7 +599,8 @@ def get_nominees(year):
     tweets = []
     for tweet in ALL_TWEETS:
         matches = re.findall(
-            r"[nN][oO][mM]|[wW][iI][nN]|[wW][oO][nN]|[aA][wW][aA][rR]", tweet)
+            r"[nN][oO][mM]|[wW][iI][nN]|[wW][oO][nN]|[aA][wW][aA][rR]", tweet
+        )
         if matches:
             tweets.append(tweet)
 
@@ -623,9 +615,8 @@ def get_nominees(year):
         tweet_lower = [word.lower() for word in tweet]
         # search for award
         for a in award_dict:
-            temp_score = len(
-                set(award_dict[a][0]).intersection(set(tweet_lower)))
-            if 'tv' in tweet_lower and 'television' in award_dict[a][0]:
+            temp_score = len(set(award_dict[a][0]).intersection(set(tweet_lower)))
+            if "tv" in tweet_lower and "television" in award_dict[a][0]:
                 temp_score += 1
             if temp_score >= 3:
                 award = a
@@ -649,7 +640,7 @@ def get_nominees(year):
                         candidate = c
                         break
 
-       # search for movie
+        # search for movie
         elif award_type == "movie":
             movie = get_movie(tweet, movie_names)
 
@@ -707,13 +698,13 @@ def get_movie(tweet, movie_names):
         "song",
         "supporting",
         "television",
-        'rt',
-        '@',
-        '(',
-        ')',
-        '_',
-        '#',
-        '%'
+        "rt",
+        "@",
+        "(",
+        ")",
+        "_",
+        "#",
+        "%",
     ]
     movie = ""
     possible_titles = []
@@ -721,9 +712,13 @@ def get_movie(tweet, movie_names):
     movie_score = 5
 
     for i in range(length):
-        if tweet[i][0].isupper() and tweet[i].lower() not in exit_words and len(tweet[i]) > 2:
+        if (
+            tweet[i][0].isupper()
+            and tweet[i].lower() not in exit_words
+            and len(tweet[i]) > 2
+        ):
             low_count = 0
-            j = i+1
+            j = i + 1
             movie_title = tweet[i]
             while low_count <= 1 and j < length:
                 if tweet[j] in exit_words:
@@ -731,7 +726,7 @@ def get_movie(tweet, movie_names):
                 if tweet[j][0].isupper():
                     movie_title += " " + tweet[j]
                 elif low_count < 1:
-                    movie_title += " "+tweet[j]
+                    movie_title += " " + tweet[j]
                     low_count += 1
                 j += 1
             possible_titles.append(movie_title.lower().strip())
@@ -741,23 +736,22 @@ def get_movie(tweet, movie_names):
             if title in movie_names:
                 movie = title
                 break
-    # for title in possible_titles:
-    #     if title[:2] in movie_names:
-    #         for m in sorted(movie_names[title[:2]]):
-    #             if len(m) > 2:
-    #                 if m[2] > title[2]:
-    #                     break
-    #             #temp_score = SequenceMatcher(None, title, m).quick_ratio()
-    #             temp_score = edlib.align(title, m)['editDistance']
-    #             if temp_score < movie_score:
-    #                 movie_score = temp_score
-    #                 movie = m
+            # for m in sorted(movie_names[title[:2]]):
+
+            # if len(m) > 2:
+            #     if m[2] > title[2]:
+            #         break
+            # #temp_score = SequenceMatcher(None, title, m).quick_ratio()
+            # temp_score = edlib.align(title, m)['editDistance']
+            # if temp_score < movie_score:
+            #     movie_score = temp_score
+            #     movie = m
     return movie
 
 
 def freq_award(mp, award):
     "Given a award frequency map return the most likely result"
-    candidate = ''
+    candidate = ""
     max_count = 0
     for c in mp[award].keys():
         if max_count < mp[award][c]:
@@ -781,7 +775,7 @@ def get_winner(year):
     print("Now gathering winners for year: " + str(year) + "\n")
 
     timer = time.time()
-    winners = {a: '' for a in OFFICIAL_AWARDS}
+    winners = {a: "" for a in OFFICIAL_AWARDS}
 
     key_words = ["win", "wins", "won"]
     basic_word_dict = ["a", "an", "for", "in", "by", "or", "-", ":", ","]
@@ -809,7 +803,9 @@ def get_winner(year):
     actor_names = nameDictionary[str(year)]
     movie_names = movieDictionary[str(year - 1)]
 
-    freq_map = {}  # Keeps track of the frequency of the award titles to make the assignment more accurate
+    freq_map = (
+        {}
+    )  # Keeps track of the frequency of the award titles to make the assignment more accurate
 
     award_tweets = []
     for tweet in tweets:
@@ -828,9 +824,8 @@ def get_winner(year):
                 full_tweet = full_tweet + " " + tweet[i]
                 c = tweet[i - 1] + " " + tweet[i]
                 if (c in actor_names) and (
-                    i +
-                        2 < len(tweet) and (
-                            tweet[i + 1] in key_words or tweet[i + 2] in key_words)
+                    i + 2 < len(tweet)
+                    and (tweet[i + 1] in key_words or tweet[i + 2] in key_words)
                 ):
                     candidate = c
             if len(candidate) == 0:
@@ -840,10 +835,13 @@ def get_winner(year):
                         and (m in full_tweet)
                         and (m not in ban_words)
                         and (
-                            "wins" in
-                            full_tweet[
+                            "wins"
+                            in full_tweet[
                                 full_tweet.index(m)
-                                + len(m): full_tweet.index(m) + len(m) + 10]
+                                + len(m) : full_tweet.index(m)
+                                + len(m)
+                                + 10
+                            ]
                         )
                     ):
                         candidate = m
@@ -960,8 +958,7 @@ def get_presenters(year):
         reg_exp = []
         for word in same_words:
             if word not in ["picture", "movie", "tv", "television", "series"]:
-                regex = r"[" + word[0].lower() + word[0].upper() + \
-                    "]" + word[1:] + "?"
+                regex = r"[" + word[0].lower() + word[0].upper() + "]" + word[1:] + "?"
                 reg_exp.append(regex)
 
         # ------ use re.findall to get tweet matches
@@ -1063,7 +1060,7 @@ def output(
         output = output[:-2] + "\n\n" + "Parsed Award Names \n------------- \n"
         # AWARDS
         for award in awards:
-            output += award+'\n'
+            output += award + "\n"
         output += "\n\n" + "Awards \n------------- \n"
         for i in range(len(officialAwards)):
             award = officialAwards[i]
@@ -1090,13 +1087,14 @@ def output(
         jsonOutput["hosts"] = hosts
         jsonOutput["award_data"] = {a: {} for a in OFFICIAL_AWARDS}
         for award in jsonOutput["award_data"]:
-            jsonOutput["award_data"][award]['nominees'] = nominees[award]
-            jsonOutput["award_data"][award]['presenters'] = presenters[award]
-            jsonOutput["award_data"][award]['winner'] = winners[award]
+            jsonOutput["award_data"][award]["nominees"] = nominees[award]
+            jsonOutput["award_data"][award]["presenters"] = presenters[award]
+            jsonOutput["award_data"][award]["winner"] = winners[award]
         # return the right output
         output = jsonOutput
 
     return output
+
 
 # function that runs all of the code and returns in in a readable way
 
@@ -1205,7 +1203,6 @@ def best_dressed(year):
     # ...
     return result
 
-
 def worst_dressed(year):
     # define an array that will hold the right data
     global OFFICIAL_AWARDS
@@ -1228,7 +1225,7 @@ def worst_dressed(year):
 
 if __name__ in ["__main__", "gg_api"]:
     if len(sys.argv) < 2:
-        raise ValueError('Please specify a year!')
+        raise ValueError("Please specify a year!")
     getTeamMembers()
     pre_ceremony()
     # elapsedSeconds = seconds since 0
