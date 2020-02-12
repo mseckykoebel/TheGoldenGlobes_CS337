@@ -11,7 +11,7 @@ def getTweets(tweetFile, numOfTweets):
         tweets = json.load(read_file)
 
     # get the second argument
-    if numOfTweets == ' ':
+    if numOfTweets == " ":
         tweetText = []
         for i in tweets:
             tweetText.append(i["text"])
