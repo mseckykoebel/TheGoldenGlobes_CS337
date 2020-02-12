@@ -70,60 +70,6 @@ OFFICIAL_AWARDS_1315 = [
     "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television",
 ]
 
-UNOFFICIAL_AWARDS_1315 = [
-    "cecil b. demille award",
-    "best motion picture - drama",
-    "best performance by an actress in a motion picture - drama",
-    "best performance by an actor in a motion picture - drama",
-    "best motion picture - comedy or musical",
-    "best performance by an actress in a motion picture - comedy or musical",
-    "best performance by an actor in a motion picture - comedy or musical",
-    "best animated feature film",
-    "best actor in a comedy or musical TV series",
-    "best motion picture screenplay",
-    "best foreign language film",
-    "best director",
-    "best screenplay",
-    "best original score",
-    "best supporting actress",
-    "best supporting actor",
-    "best actress in a motion picture , comedy or musical",
-    "best actor in a motion picture , comedy or musical",
-    "best actor in a motion picture , drama",
-    "best actor in a motion picture - drama",
-    "best actress in a motion picture - drama",
-    "best actress in a drama series",
-    "best film in the comedy",
-    "best performance by an actress in a supporting role in a motion picture",
-    "best performance by an actor in a supporting role in a motion picture",
-    "best director - motion picture",
-    "best screenplay - motion picture",
-    "best original score - motion picture",
-    "best original song - motion picture",
-    "best television series - drama",
-    "best animated feature film",
-    "best original song in a motion picture",
-    "best comedy or musical TV series",
-    "best motion picture , comedy or musical",
-    "best performance by an actress in a television series - drama",
-    "best performance by an actor in a television series - drama",
-    "best television series - comedy or musical",
-    "best performance by an actress in a television series - comedy or musical",
-    "best performance by an actor in a television series - comedy or musical",
-    "best mini-series or motion picture made for television",
-    "best performance by an actress in a mini-series or motion picture made for television",
-    "best performance by an actor in a mini-series or motion picture made for television",
-    "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television",
-    "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television",
-    "best actress award in the TV mini-series or motion picture",
-    "Best original score , motion picture",
-    "best actor , TV series or drama",
-    "best actress in a comedy series",
-    "best actress for TV movie role",
-    "Best original score",
-    "best picture , musical or comedy",
-    "best motion picture -- drama",
-]
 
 OFFICIAL_AWARDS_1819 = [
     "best motion picture - drama",
@@ -157,8 +103,6 @@ OFFICIAL_AWARDS_1819 = [
 AWARD_MAP = {
 "best picture , musical or comedy" : "best motion picture - drama",
 "best actress in a drama series" : "best television series - drama",
-"best supporting actress" : "best performance by an actress in a supporting role in a motion picture",
-"best supporting actor" : "best performance by an actor in a supporting role in a motion picture",
 "best actor in a motion picture , comedy or musical" : "best performance by an actor in a motion picture - comedy or musical",
 "best animated feature film" : "best animated feature film",
 "best actor in a comedy or musical TV series" : "best performance by an actor in a television series - comedy or musical",
@@ -178,11 +122,17 @@ AWARD_MAP = {
 "best actress in a comedy series" : "best performance by an actress in a television series - comedy or musical",
 "best original song in a motion picture" : "best original song - motion picture",
 "Best original score , motion picture" : "best original score - motion picture",
-"best actor in a drama" : "best performance by an actor in a motion picture - drama",
-"best actress in a drama" : "best performance by an actress in a motion picture - drama",
 "best foreign language film" : "best foreign language film",
 "best motion picture -- drama" : "best motion picture - drama",
-"cecil b. demille award" : "cecil b. demille award"
+"cecil b. demille award" : "cecil b. demille award",
+"best actor in a drama" : "best performance by an actor in a motion picture - drama",
+"best actress , motion picture comedy or musical" : "best performance by an actress in a motion picture - comedy or musical",
+"best supporting actor in a series or TV movie" : "best performance by an actor in a supporting role in a series, mini-series or motion picture made for television",
+"best supporting actress in a series or TV movie" : "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television",
+"best supporting actress for TV performance" : "best performance by an actress in a supporting role in a series, mini-series or motion picture made for television",
+"best supporting actress , motion picture" : "best performance by an actress in a supporting role in a motion picture",
+"best supporting actor , motion picture" : "best performance by an actor in a supporting role in a motion picture",
+"Best original score" : "best original score - motion picture",
 }
 
 
@@ -782,6 +732,8 @@ def get_winner(year):
 
     for tweet in award_tweets:
         # There is win keyword present
+        if "cecil" in tweet:
+           print( tweet )
         if len((set(key_words) & set(tweet))) > 0:
             full_tweet = tweet[0]
             candidate = ""
@@ -809,11 +761,10 @@ def get_winner(year):
                         candidate = m
                         break
 
-            for a in UNOFFICIAL_AWARDS_1315:
+            for a in AWARD_MAP.keys():
                 if a in full_tweet:
                     award = a
                     break
-
 
             if award in AWARD_MAP.keys():
                 award = AWARD_MAP[award]
