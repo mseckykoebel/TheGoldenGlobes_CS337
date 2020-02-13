@@ -298,7 +298,7 @@ def init_files():
     for year in range(2010, 2020):
         movieDictionary[str(year)] = []
 
-    for name in allData_movie[1 : len(allData_movie) - 1]:
+    for name in allData_movie[1: len(allData_movie) - 1]:
         name_name = name[3]  # 1 before is english translation
         year = name[5]
 
@@ -316,7 +316,7 @@ def init_files():
         json.dump(movieDictionary, fp)
 
     # iterate through all lines
-    for name in allData[1 : len(allData) - 1]:
+    for name in allData[1: len(allData) - 1]:
         # get the name, birth date, and death date
         name_name = name[1]
         name_birth = name[2]
@@ -523,39 +523,10 @@ def get_awards(year):
             award_string = " ".join(award_name_builder)
             if award_string not in awards and len(award_name_builder) > 3:
                 awards.append(award_string)
-    awards = clean_awards(awards)
+    awards = list(set(awards))
     global AWARDS
     AWARDS = awards
     print("Awards gathered! \n")
-    return awards
-
-
-def clean_awards(awards):
-    duplicates = []
-    for i in range(len(awards) - 1):
-        for j in range(i, len(awards)):
-            a = awards[i]
-            b = awards[j]
-            if a != b:
-                similarity = SequenceMatcher(None, a, b).quick_ratio()
-                if similarity > 0.75:
-                    if not (
-                        "actor" in a
-                        and "actress" in b
-                        or "actor" in a
-                        and "actress" in b
-                    ):
-                        if not (
-                            "actor" in a
-                            and "actor" not in b
-                            or "actress" in a
-                            and "actress" not in b
-                        ):
-                            duplicates.append(b)
-    duplicates = set(duplicates)
-    for x in duplicates:
-        if x in awards:
-            awards.remove(x)
     return awards
 
 
@@ -577,7 +548,8 @@ def get_nominees(year):
         else:
             award_dict[award].append("movie")
 
-    actor_names_temp = [name.lower() for name in nameDictionary[str(int(year) - 1)]]
+    actor_names_temp = [name.lower()
+                        for name in nameDictionary[str(int(year) - 1)]]
     movie_names_temp = [
         name.lower() for name in set(movieDictionary[str(int(year) - 1)])
     ]
@@ -615,7 +587,8 @@ def get_nominees(year):
         tweet_lower = [word.lower() for word in tweet]
         # search for award
         for a in award_dict:
-            temp_score = len(set(award_dict[a][0]).intersection(set(tweet_lower)))
+            temp_score = len(
+                set(award_dict[a][0]).intersection(set(tweet_lower)))
             if "tv" in tweet_lower and "television" in award_dict[a][0]:
                 temp_score += 1
             if temp_score >= 3:
@@ -838,7 +811,7 @@ def get_winner(year):
                             "wins"
                             in full_tweet[
                                 full_tweet.index(m)
-                                + len(m) : full_tweet.index(m)
+                                + len(m): full_tweet.index(m)
                                 + len(m)
                                 + 10
                             ]
@@ -958,7 +931,8 @@ def get_presenters(year):
         reg_exp = []
         for word in same_words:
             if word not in ["picture", "movie", "tv", "television", "series"]:
-                regex = r"[" + word[0].lower() + word[0].upper() + "]" + word[1:] + "?"
+                regex = r"[" + word[0].lower() + word[0].upper() + \
+                    "]" + word[1:] + "?"
                 reg_exp.append(regex)
 
         # ------ use re.findall to get tweet matches
