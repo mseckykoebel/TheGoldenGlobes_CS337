@@ -1124,12 +1124,10 @@ def runAllFunctions(year, name):
 def gen_output(year):
     print("Generating output and output file...\n")
     # get the right year
-    humanOutput = output("human", HOSTS, AWARDS,
-                         NOMINEES, WINNERS, PRESENTERS)
+    humanOutput = output("human", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
     # add this when it is done!!!!! :
     # {"Best Dressed": bestDressed, "Worst Dressed": worstDressed}
-    jsonOutput = output("json", HOSTS, AWARDS,
-                        NOMINEES, WINNERS, PRESENTERS)
+    jsonOutput = output("json", HOSTS, AWARDS, NOMINEES, WINNERS, PRESENTERS)
     # create the json file
     with open("data" + str(year) + ".json", "w") as f:
         json.dump(jsonOutput, f)
@@ -1202,6 +1200,7 @@ def best_dressed(year):
     # ...
     # ...
     return result
+
 
 def worst_dressed(year):
     # define an array that will hold the right data
